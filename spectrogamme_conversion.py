@@ -37,6 +37,7 @@ with open(metadata_outpath, mode='w', newline='') as output_csv_file:
             end_audio = int(float(row["t_max"]) * 48000)
             xx, frequency, bins, im = plt.specgram([data[i] for i in range(start_audio, end_audio)], Fs=sample)
             plt.axis('off')
+            row["recording_id"] = row["recording_id"] + "_" + str(line_count)
             plt.savefig(os.path.join(audio_outpath, row["recording_id"] + ".png"), bbox_inches='tight', pad_inches=0)
             plt.close()
             writer.writerow(row)
