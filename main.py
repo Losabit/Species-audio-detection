@@ -6,8 +6,8 @@ from matplotlib import image
 DATASET_DIRECTORY = os.path.join(os.getcwd(), 'dataset', 'spectrogram-species-audio-detection')
 DATASET_TRAIN_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'train')
 DATASET_TRUE_TRAIN_CSV = os.path.join(DATASET_DIRECTORY, 'train_tp.csv')
-IMAGE_HEIGHT = 369
-IMAGE_WIDTH = 496
+IMAGE_HEIGHT = 32
+IMAGE_WIDTH = 32
 
 def load_data():
     labels = np.zeros(0, dtype=np.float32)
