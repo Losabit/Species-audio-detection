@@ -1,10 +1,10 @@
 import os
 import csv
 import matplotlib.pyplot as plt
-import numpy as np
 import soundfile as sf
-import PIL
+import math
 from PIL import Image
+import numpy as np
 
 
 '''
@@ -24,6 +24,50 @@ height = 32
 width = 32
 print_it = 200
 
+# duration_cut -> Découpage des extraits en morceaux de x secondes / 0 = pas de découpage
+duration_cut = 2
+# minimum duration of record
+minimal_duration = 0.5
+initial_freq = 48000
+freq_modifier = 0
+
+
+def save_spectrogramm(data, sample, picture_path):
+    xx, frequency, bins, im = plt.specgram(data, Fs=sample)
+    plt.axis('off')
+    plt.savefig(picture_path, bbox_inches='tight', pad_inches=0)
+    plt.close()
+    image = Image.open(picture_path)
+    image.resize((width, height)).save(picture_path)
+
+
+def process_and_save_spectrogramm(input_path, output_path, start_audio, end_audio):
+    data, sample = sf.read(input_path)
+    result = np.zeros((0, 2), dtype=np.float32)
+    if duration_cut != 0:
+        nb_extraits = (end_audio - start_audio) / duration_cut
+        nb_extraits_int = int(math.floor(nb_extraits))
+        for i in range(nb_extraits_int):
+            save_spectrogramm([data[j] for j in range(int((start_audio + i * duration_cut) * initial_freq),
+                                                      int((start_audio + (i + 1) * duration_cut) * initial_freq))],
+                              sample,  output_path + "_" + str(i) + ".png")
+            result = np.concatenate((result, [[start_audio + i * duration_cut,
+                                               start_audio + (i + 1) * duration_cut]]), axis=0)
+
+        if minimal_duration < end_audio - (nb_extraits_int * duration_cut) - start_audio:
+            save_spectrogramm([data[i] for i in range(int((start_audio + nb_extraits_int * duration_cut) * initial_freq)
+                                                      , int(end_audio * initial_freq))],
+                              sample, output_path + "_" + str(nb_extraits_int) + ".png")
+            result = np.concatenate((result, [[start_audio + nb_extraits_int * duration_cut,
+                                               end_audio]]), axis=0)
+
+    elif minimal_duration < end_audio - start_audio:
+        save_spectrogramm([data[i] for i in range(int(start_audio * initial_freq), int(end_audio * initial_freq))],
+                          sample, output_path + "_0" + ".png")
+        result = np.concatenate((result, [[start_audio, end_audio]]), axis=0)
+    return result
+
+
 if not os.path.isdir(outpath):
     os.mkdir(outpath)
 if not os.path.isdir(audio_outpath):
@@ -36,25 +80,21 @@ with open(metadata_outpath, mode='w', newline='') as output_csv_file:
         for row in csv_reader:
             if line_count % print_it == 0:
                 print(str(line_count) + " extraits traités")
+
             if line_count == 0:
                 writer = csv.DictWriter(output_csv_file, row)
                 writer.writeheader()
                 line_count += 1
 
-            data, sample = sf.read(os.path.join(audio_inpath, row["recording_id"] + ".flac"))
-            row["recording_id"] = row["recording_id"] + "_" + str(line_count)
-            picture = os.path.join(audio_outpath, row["recording_id"] + ".png")
+            times_cut = process_and_save_spectrogramm(os.path.join(audio_inpath, row["recording_id"] + ".flac"),
+                              os.path.join(audio_outpath, row["recording_id"] + "_" + str(line_count)),
+                              float(row["t_min"]), float(row["t_max"]))
 
-            start_audio = int(float(row["t_min"]) * 48000)
-            end_audio = int(float(row["t_max"]) * 48000)
-            xx, frequency, bins, im = plt.specgram([data[i] for i in range(start_audio, end_audio)], Fs=sample)
-
-            plt.axis('off')
-            plt.savefig(picture, bbox_inches='tight', pad_inches=0)
-            plt.close()
-
-            image = Image.open(picture)
-            image.resize((width, height)).save(picture)
-            writer.writerow(row)
+            recording_id_buff = row["recording_id"]
+            for i in range(times_cut.shape[0]):
+                row["recording_id"] = recording_id_buff + "_" + str(line_count) + "_" + str(i)
+                row["t_min"] = str(times_cut[i][0])
+                row["t_max"] = str(times_cut[i][1])
+                writer.writerow(row)
             line_count += 1
         print(f'Processed {line_count} lines.')
