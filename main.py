@@ -1,13 +1,10 @@
 import os
 import csv
 import numpy as np
+import tensorflow as tf
 from matplotlib import image
+from dataset_param import *
 
-DATASET_DIRECTORY = os.path.join(os.getcwd(), 'dataset', 'spectrogram-species-audio-detection')
-DATASET_TRAIN_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'train')
-DATASET_TRUE_TRAIN_CSV = os.path.join(DATASET_DIRECTORY, 'train_tp.csv')
-IMAGE_HEIGHT = 32
-IMAGE_WIDTH = 32
 
 def load_data():
     labels = np.zeros(0, dtype=np.float32)
@@ -23,8 +20,8 @@ def load_data():
             line_count += 1
     return data, labels
 
-
 if __name__ == '__main__':
-    data, labels = load_data()
+    (data, labels) = load_data()
     print(data.shape)
     print(labels.shape)
+
