@@ -8,4 +8,13 @@ IMAGE_WIDTH = 32
 len_classes = [str(i) for i in range(9)]
 epch = 100
 
+### PARAMS spectrogramm_conversion ###
+# Lié à IMAGE_WIDTH et IMAGE_HEIGHT
+print_it = 200
+# duration_cut -> Découpage des extraits en morceaux de x secondes / 0 = pas de découpage
+duration_cut = 2
+# minimum duration of record
+minimal_duration = 0.5
+initial_freq = 48000
+freq_modifier = 0
 

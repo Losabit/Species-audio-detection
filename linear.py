@@ -1,8 +1,9 @@
-import  tensorflow as tf
-from tensorflow.keras import  Model, Sequential
+import tensorflow as tf
+from tensorflow.keras import Model, Sequential
 from tensorflow.python.keras.layers import RandomFlip, RandomRotation, Dense, Flatten
 from tensorflow.keras.optimizers import SGD
-from dataset_param import  *
+from dataset_param import *
+
 
 def create_base_model(add_custom_layers_func) -> Model:
     m = Sequential()
@@ -21,8 +22,10 @@ def create_base_model(add_custom_layers_func) -> Model:
 
     return m
 
+
 def linearMod(Senq):
     pass
+
 
 def train_models(m:Model,x,y):
     m.fit(
@@ -30,6 +33,7 @@ def train_models(m:Model,x,y):
         y,
         epochs=epch
     )
+
 
 if __name__ == '__main__':
     m = create_base_model(linearMod)

@@ -5,6 +5,7 @@ import soundfile as sf
 import math
 from PIL import Image
 import numpy as np
+from dataset_param import *
 
 
 '''
@@ -16,21 +17,6 @@ inpath = os.path.join(os.getcwd(), 'dataset', 'rfcx-species-audio-detection')
 metadata_inpath = os.path.join(inpath, 'train_tp.csv')
 audio_inpath = os.path.join(inpath, 'train')
 
-outpath = os.path.join(os.getcwd(), 'dataset', 'spectrogram-species-audio-detection')
-metadata_outpath = os.path.join(outpath, 'train_tp.csv')
-audio_outpath = os.path.join(outpath, 'train')
-
-height = 32
-width = 32
-print_it = 200
-
-# duration_cut -> Découpage des extraits en morceaux de x secondes / 0 = pas de découpage
-duration_cut = 2
-# minimum duration of record
-minimal_duration = 0.5
-initial_freq = 48000
-freq_modifier = 0
-
 
 def save_spectrogramm(data, sample, picture_path):
     xx, frequency, bins, im = plt.specgram(data, Fs=sample)
@@ -38,7 +24,7 @@ def save_spectrogramm(data, sample, picture_path):
     plt.savefig(picture_path, bbox_inches='tight', pad_inches=0)
     plt.close()
     image = Image.open(picture_path)
-    image.resize((width, height)).save(picture_path)
+    image.resize((IMAGE_WIDTH, IMAGE_HEIGHT)).save(picture_path)
 
 
 def process_and_save_spectrogramm(input_path, output_path, start_audio, end_audio):
@@ -68,12 +54,12 @@ def process_and_save_spectrogramm(input_path, output_path, start_audio, end_audi
     return result
 
 
-if not os.path.isdir(outpath):
-    os.mkdir(outpath)
-if not os.path.isdir(audio_outpath):
-    os.mkdir(audio_outpath)
+if not os.path.isdir(DATASET_DIRECTORY):
+    os.mkdir(DATASET_DIRECTORY)
+if not os.path.isdir(DATASET_TRAIN_DIRECTORY):
+    os.mkdir(DATASET_TRAIN_DIRECTORY)
 
-with open(metadata_outpath, mode='w', newline='') as output_csv_file:
+with open(DATASET_TRUE_TRAIN_CSV, mode='w', newline='') as output_csv_file:
     with open(metadata_inpath, mode='r') as csv_file:
         csv_reader = csv.DictReader(csv_file)
         line_count = 0
@@ -87,7 +73,7 @@ with open(metadata_outpath, mode='w', newline='') as output_csv_file:
                 line_count += 1
 
             times_cut = process_and_save_spectrogramm(os.path.join(audio_inpath, row["recording_id"] + ".flac"),
-                              os.path.join(audio_outpath, row["recording_id"] + "_" + str(line_count)),
+                              os.path.join(DATASET_TRAIN_DIRECTORY, row["recording_id"] + "_" + str(line_count)),
                               float(row["t_min"]), float(row["t_max"]))
 
             recording_id_buff = row["recording_id"]
