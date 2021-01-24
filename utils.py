@@ -1,6 +1,9 @@
+from datetime import datetime
+
 from dataset_param import *
 import csv
 import numpy as np
+import matplotlib.pyplot as plt
 import tensorflow as tf
 from matplotlib import image
 from dataset_param import *
@@ -32,3 +35,14 @@ def split_array(data_to_split, percent):
 
 def build_x_y(x, y):
     return x, tf.keras.utils.to_categorical(y, len_classes)
+
+def plot_all_logs(logs):
+    metrics = ['loss', 'val_loss', 'categorical_accuracy', 'val_categorical_accuracy']
+    for metric in metrics:
+        for log in logs:
+            y_coords = log['value'].history[metric]
+            x_coords = list(range(len(y_coords)))
+            plt.plot(x_coords, y_coords)
+            plt.title(log['title'] + " - " + datetime.now().strftime("%Hh:%Mm:%Ss") + " - " + metric)
+            plt.show()
+

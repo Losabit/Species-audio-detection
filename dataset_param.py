@@ -9,6 +9,9 @@ IMAGE_WIDTH = 32
 len_classes = 24
 epch = 100
 TRAIN_PERCENT_DATA = 0.8
+KERNEL_REGULARIZERS = 0.0005
+lrTest = 0.01
+momentumTest = 0.95
 
 ### PARAMS spectrogramm_conversion ###
 # Lié à IMAGE_WIDTH et IMAGE_HEIGHT
@@ -18,6 +21,7 @@ duration_cut = 2
 # minimum duration of record
 minimal_duration = 0.5
 freq_modifier = 0
+
 
 ### PARAMS test_spectrogramm_conversion ###
 test_duration_cut = 5
