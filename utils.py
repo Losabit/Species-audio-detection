@@ -36,6 +36,7 @@ def split_array(data_to_split, percent):
 def build_x_y(x, y):
     return x, tf.keras.utils.to_categorical(y, len_classes)
 
+
 def plot_all_logs(logs):
     metrics = ['loss', 'val_loss', 'categorical_accuracy', 'val_categorical_accuracy']
     for metric in metrics:

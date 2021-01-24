@@ -5,6 +5,7 @@ from tensorflow.keras.optimizers import SGD
 from dataset_param import *
 import numpy as np
 from utils import *
+from submission import predict_and_save_in_submission
 
 
 def create_base_model(add_custom_layers_func) -> Model:
@@ -42,14 +43,14 @@ def convNet(model):
 
 
 def train_model(m: Model, x, y, x_val, y_val):
-   log =  m.fit(
+    log = m.fit(
         x,
         y,
         validation_data=(x_val, y_val),
         epochs=epch,
         batch_size=1024
     )
-   return log
+    return log
 
 
 if __name__ == '__main__':
@@ -66,3 +67,7 @@ if __name__ == '__main__':
 
     ]
     plot_all_logs(all_logs)
+
+    print("start submission results")
+    # predict_and_save_in_submission(model, None)
+

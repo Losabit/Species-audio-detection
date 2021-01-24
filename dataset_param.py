@@ -2,6 +2,7 @@ import os
 
 DATASET_DIRECTORY = os.path.join(os.getcwd(), 'dataset', 'spectrogram-species-audio-detection')
 DATASET_TRAIN_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'train')
+DATASET_VAL_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'val')
 DATASET_TEST_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'test')
 DATASET_TRUE_TRAIN_CSV = os.path.join(DATASET_DIRECTORY, 'train_tp.csv')
 IMAGE_HEIGHT = 32
@@ -21,6 +22,7 @@ duration_cut = 2
 # minimum duration of record
 minimal_duration = 0.5
 freq_modifier = 0
+train_percent = 0.8
 
 
 ### PARAMS test_spectrogramm_conversion ###
