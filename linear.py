@@ -7,6 +7,9 @@ import numpy as np
 from utils import *
 from submission import *
 
+train_size = compute_train_images_count()
+val_size = compute_val_images_count()
+
 
 def create_base_model(add_custom_layers_func) -> Model:
     m = Sequential()
@@ -15,7 +18,7 @@ def create_base_model(add_custom_layers_func) -> Model:
     m.add(Flatten())
     m.add(tf.keras.layers.Dense(len_classes, tf.keras.activations.softmax))
 
-    m.compile(optimizer=tf.keras.optimizers.SGD(lr=lrTest),
+    m.compile(optimizer=tf.keras.optimizers.SGD(lr=ref_lr / ref_batch_size * batch_size),
               loss=tf.keras.losses.categorical_crossentropy,
               metrics=["categorical_accuracy"])
 
@@ -50,31 +53,62 @@ def add_convnet(model):
     model.add(tf.keras.layers.MaxPool2D())
 
 
-def train_model(m: Model, x, y, x_val, y_val):
+def train_model(m: Model, x_iterator, y_iterator):
     log = m.fit(
-        x,
-        y,
-        validation_data=(x_val, y_val),
-        epochs=epch,
-        batch_size=batch_size
+        x_iterator,
+        validation_data=y_iterator,
+        steps_per_epoch=train_size // batch_size,
+        validation_steps=val_size // batch_size,
+        epochs=epch
     )
     return log
 
 
-if __name__ == '__main__':
-    print("loading data")
-    train_data, train_labels = load_data(DATASET_TRAIN_DIRECTORY)
-    val_data, val_labels = load_data(DATASET_VAL_DIRECTORY)
-    train_data, train_labels = build_x_y(train_data, train_labels)
-    val_data, val_labels = build_x_y(val_data, val_labels)
-    print("data loaded")
+def create_dataset_iterator(base_folder: str, size: int):
+    def inner_func():
+        return tf.keras.preprocessing.image.ImageDataGenerator(rescale=1.0 / 255).flow_from_directory(base_folder,
+                                                                                                      target_size=(
+                                                                                                          IMAGE_WIDTH,
+                                                                                                          IMAGE_HEIGHT),
+                                                                                                      color_mode='rgba',
+                                                                                                      batch_size=1)
 
+    return (tf.data.Dataset.from_generator(inner_func,
+                                           output_types=(tf.float32, tf.float32),
+                                           output_shapes=(
+                                               (1, *(IMAGE_WIDTH, IMAGE_HEIGHT), 4),
+                                               (1, len_classes)
+                                           )
+                                           )
+            .take(size)
+            .unbatch()
+            .batch(batch_size)
+            .cache(f'{base_folder}/cache')
+            .repeat()
+            .as_numpy_iterator()
+            )
+
+
+if __name__ == '__main__':
     model = create_base_model(add_convnet)
     all_logs = [
-        {"value": train_model(model, train_data, train_labels, val_data, val_labels), "title": "Conv mod"},
+        {"value": train_model(model,
+                              create_dataset_iterator(DATASET_TRAIN_DIRECTORY, train_size),
+                              create_dataset_iterator(DATASET_VAL_DIRECTORY, val_size)),
+         "title": "add_mlp_layers"}
     ]
     plot_all_logs(all_logs)
 
-    print("start submission results")
+    print("Evaluation du dataset : ")
+    print("[Train] => ")
+    model.evaluate(create_dataset_iterator(DATASET_TRAIN_DIRECTORY, train_size),
+                   steps=train_size // batch_size)
+
+    print("[Validation] => ")
+    model.evaluate(create_dataset_iterator(DATASET_VAL_DIRECTORY, val_size),
+                   steps=val_size // batch_size)
+
+    print("Sauvegarde des prédictions sur le jeu de test : ")
     predict_and_save_in_submission(model, average)
+
 

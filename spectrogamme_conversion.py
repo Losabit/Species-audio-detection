@@ -7,12 +7,6 @@ from PIL import Image
 from dataset_param import *
 from utils import count_csv_lines
 
-
-'''
-https://stackoverflow.com/questions/23377665/python-scipy-fft-wav-files
-https://docs.scipy.org/doc/scipy/reference/tutorial/fft.html
-'''
-
 initial_freq = 48000
 inpath = os.path.join(os.getcwd(), 'dataset', 'rfcx-species-audio-detection')
 metadata_inpath = os.path.join(inpath, 'train_tp.csv')
@@ -48,36 +42,39 @@ def process_and_save_spectrogramm(input_path, output_path, start_audio, end_audi
                           sample, output_path + "_0" + ".png")
 
 
+def create_spectro_dataset():
+    total_lines = count_csv_lines(metadata_inpath)
+    one_percent = int(total_lines / 100)
+    percent = 0
+    with open(metadata_inpath, mode='r') as csv_file:
+        csv_reader = csv.DictReader(csv_file)
+        line_count = 0
+        for row in csv_reader:
+            if line_count % one_percent == 0:
+                if percent % PERCENT_PRINT == 0:
+                    print(str(percent) + "%")
+                percent += 1
+
+            if TRAIN_PERCENT > line_count / total_lines:
+                class_directory = os.path.join(DATASET_TRAIN_DIRECTORY, str(row["species_id"]))
+                if not os.path.isdir(class_directory):
+                    os.mkdir(class_directory)
+            else:
+                class_directory = os.path.join(DATASET_VAL_DIRECTORY, str(row["species_id"]))
+                if not os.path.isdir(class_directory):
+                    os.mkdir(class_directory)
+
+            process_and_save_spectrogramm(os.path.join(audio_inpath, row["recording_id"] + ".flac"),
+                              os.path.join(class_directory, row["recording_id"] + "_" + str(line_count)),
+                              float(row["t_min"]), float(row["t_max"]))
+            line_count += 1
+        print('100%')
+
+
 if not os.path.isdir(DATASET_DIRECTORY):
     os.mkdir(DATASET_DIRECTORY)
 if not os.path.isdir(DATASET_TRAIN_DIRECTORY):
     os.mkdir(DATASET_TRAIN_DIRECTORY)
 if not os.path.isdir(DATASET_VAL_DIRECTORY):
     os.mkdir(DATASET_VAL_DIRECTORY)
-
-total_lines = count_csv_lines(metadata_inpath)
-one_percent = int(total_lines / 100)
-percent = 0
-with open(metadata_inpath, mode='r') as csv_file:
-    csv_reader = csv.DictReader(csv_file)
-    line_count = 0
-    for row in csv_reader:
-        if line_count % one_percent == 0:
-            if percent % PERCENT_PRINT == 0:
-                print(str(percent) + "%")
-            percent += 1
-
-        if TRAIN_PERCENT > line_count / total_lines:
-            class_directory = os.path.join(DATASET_TRAIN_DIRECTORY, str(row["species_id"]))
-            if not os.path.isdir(class_directory):
-                os.mkdir(class_directory)
-        else:
-            class_directory = os.path.join(DATASET_VAL_DIRECTORY, str(row["species_id"]))
-            if not os.path.isdir(class_directory):
-                os.mkdir(class_directory)
-
-        process_and_save_spectrogramm(os.path.join(audio_inpath, row["recording_id"] + ".flac"),
-                          os.path.join(class_directory, row["recording_id"] + "_" + str(line_count)),
-                          float(row["t_min"]), float(row["t_max"]))
-        line_count += 1
-    print('100%')
+create_spectro_dataset()
