@@ -70,12 +70,13 @@ def create_dataset_iterator(base_folder: str, size: int):
                                                                                                       target_size=(
                                                                                                           IMAGE_WIDTH,
                                                                                                           IMAGE_HEIGHT),
+                                                                                                      color_mode='rgba',
                                                                                                       batch_size=1)
 
     return (tf.data.Dataset.from_generator(inner_func,
                                            output_types=(tf.float32, tf.float32),
                                            output_shapes=(
-                                               (1, *(IMAGE_WIDTH, IMAGE_HEIGHT), 3),
+                                               (1, *(IMAGE_WIDTH, IMAGE_HEIGHT), 4),
                                                (1, len_classes)
                                            )
                                            )
@@ -84,31 +85,28 @@ def create_dataset_iterator(base_folder: str, size: int):
             .batch(batch_size)
             .cache(f'{base_folder}/cache')
             .repeat()
-            .prefetch(2)
             .as_numpy_iterator()
             )
 
 
 if __name__ == '__main__':
-
-    model = create_base_model(linear_mod)
+    model = create_base_model(add_mlp_layers)
     all_logs = [
         {"value": train_model(model,
                               create_dataset_iterator(DATASET_TRAIN_DIRECTORY, train_size),
                               create_dataset_iterator(DATASET_VAL_DIRECTORY, val_size)),
-         "title": "linear_mod"}
+         "title": "add_mlp_layers"}
     ]
     plot_all_logs(all_logs)
 
     print("Evaluation du dataset : ")
     print("[Train] => ")
     model.evaluate(create_dataset_iterator(DATASET_TRAIN_DIRECTORY, train_size),
-                      steps=train_size // batch_size)
+                   steps=train_size // batch_size)
 
     print("[Validation] => ")
     model.evaluate(create_dataset_iterator(DATASET_VAL_DIRECTORY, val_size),
                    steps=val_size // batch_size)
-
 
     print("start submission results")
     # predict_and_save_in_submission(model, None)
