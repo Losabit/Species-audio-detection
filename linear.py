@@ -63,8 +63,8 @@ def train_model(m: Model, x, y, x_val, y_val):
 if __name__ == '__main__':
     print("loading data")
     (data, label) = load_data()
-    train_data, val_data = split_array(data, 0.8)
-    train_labels, val_labels = split_array(label, 0.8)
+    train_data, val_data = split_array(data, TRAIN_PERCENT_DATA)
+    train_labels, val_labels = split_array(label, TRAIN_PERCENT_DATA)
     train_data, train_labels = build_x_y(train_data, train_labels)
     val_data, val_labels = build_x_y(val_data, val_labels)
     print("data loaded")
