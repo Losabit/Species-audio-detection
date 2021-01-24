@@ -6,5 +6,5 @@ if __name__ == '__main__':
     (data, labels) = load_data()
     print(data.shape)
     print(labels.shape)
-    print(split_array(data, 500).shape)
+    #print(split_array(data, 500).shape)
 
