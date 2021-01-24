@@ -6,7 +6,6 @@ import tensorflow as tf
 from matplotlib import image
 from dataset_param import *
 
-
 def load_data():
     labels = np.zeros(0, dtype=np.float32)
     data = np.zeros((0, IMAGE_HEIGHT, IMAGE_WIDTH, 4), dtype=np.float32)

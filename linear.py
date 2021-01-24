@@ -7,6 +7,7 @@ import  numpy as np
 from utils import *
 
 
+
 def create_base_model(add_custom_layers_func) -> Model:
     m = Sequential()
     add_custom_layers_func(m)
@@ -26,9 +27,12 @@ def linearMod(Senq):
     pass
 
 
-def train_models(m, x, y):
-    m.fit(x, y, epochs=epch,batch_size=2)
-    m.summary()
+def train_models(m:Model,x,y):
+    m.fit(
+        x,
+        y,
+        epochs=epch
+    )
 
 
 if __name__ == '__main__':
