@@ -8,20 +8,17 @@ from matplotlib import image
 from dataset_param import *
 
 
-def load_data():
+def load_data(path):
     labels = np.zeros(0, dtype=np.float32)
     data = np.zeros((0, IMAGE_HEIGHT, IMAGE_WIDTH, 4), dtype=np.float32)
-    with open(DATASET_TRUE_TRAIN_CSV, mode='r') as csv_file:
-        csv_reader = csv.DictReader(csv_file)
-        line_count = 0
-        for row in csv_reader:
-            if line_count % print_it == 0:
-                print(str(line_count) + " chargés en memoires")
-            labels = np.append(labels, int(row["species_id"]))
-            spectro_image = image.imread(os.path.join(DATASET_TRAIN_DIRECTORY, row["recording_id"] + ".png"))
-            spectro_image = np.expand_dims(spectro_image, axis=0)
-            data = np.concatenate((data, spectro_image), axis=0)
-            line_count += 1
+    for _, directories, _ in os.walk(path):
+        for directory in directories:
+            directory_path = os.path.join(path, directory)
+            for file in os.listdir(directory_path):
+                labels = np.append(labels, int(directory))
+                spectro_image = image.imread(os.path.join(directory_path, file))
+                spectro_image = np.expand_dims(spectro_image, axis=0)
+                data = np.concatenate((data, spectro_image), axis=0)
     return data, labels
 
 
@@ -36,6 +33,15 @@ def split_array(data_to_split, percent):
 
 def build_x_y(x, y):
     return x, tf.keras.utils.to_categorical(y, len_classes)
+
+
+def count_csv_lines(path):
+    with open(path, mode='r') as file:
+        reader = csv.DictReader(file)
+        count = 0
+        for _ in reader:
+            count += 1
+        return count
 
 
 def plot_all_logs(logs):

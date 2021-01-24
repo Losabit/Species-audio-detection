@@ -7,7 +7,11 @@ from dataset_param import *
 
 
 def average(predicts):
-    return
+    sum_classes = np.zeros(len_classes, dtype=np.float32)
+    for predict in predicts:
+        for i in range(len_classes):
+            sum_classes[i] += predict[i]
+    return sum_classes / len(predicts)
 
 
 def predict_and_save_in_submission(model: Model, func):
@@ -25,7 +29,6 @@ def predict_and_save_in_submission(model: Model, func):
                     spectro_image = image.imread(file_path)
                     spectro_image = np.expand_dims(spectro_image, axis=0)
                     predictions = np.concatenate((predictions, model.predict(spectro_image)), axis=0)
-                    print(predictions.shape)
 
                 if func is None:
                     writer.writerow(np.insert(predictions[0].astype(np.str), 0, directory, axis=0))

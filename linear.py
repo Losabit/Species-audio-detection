@@ -5,7 +5,7 @@ from tensorflow.keras.optimizers import SGD
 from dataset_param import *
 import numpy as np
 from utils import *
-from submission import predict_and_save_in_submission
+from submission import *
 
 
 def create_base_model(add_custom_layers_func) -> Model:
@@ -29,7 +29,7 @@ def linear_mod(Seq):
 def add_mlp_layers(model):
     model.add(tf.keras.layers.Flatten())
     for _ in range(5):
-        model.add(tf.keras.layers.Dense(2048,activation=tf.keras.activations.linear))
+        model.add(tf.keras.layers.Dense(2048, activation=tf.keras.activations.linear))
         model.add(tf.keras.layers.BatchNormalization())
         model.add(tf.keras.layers.Activation(activation=tf.keras.activations.tanh))
 
@@ -63,9 +63,8 @@ def train_model(m: Model, x, y, x_val, y_val):
 
 if __name__ == '__main__':
     print("loading data")
-    (data, label) = load_data()
-    train_data, val_data = split_array(data, TRAIN_PERCENT_DATA)
-    train_labels, val_labels = split_array(label, TRAIN_PERCENT_DATA)
+    train_data, train_labels = load_data(DATASET_TRAIN_DIRECTORY)
+    val_data, val_labels = load_data(DATASET_VAL_DIRECTORY)
     train_data, train_labels = build_x_y(train_data, train_labels)
     val_data, val_labels = build_x_y(val_data, val_labels)
     print("data loaded")
@@ -77,5 +76,5 @@ if __name__ == '__main__':
     plot_all_logs(all_logs)
 
     print("start submission results")
-    # predict_and_save_in_submission(model, None)
+    predict_and_save_in_submission(model, average)
 

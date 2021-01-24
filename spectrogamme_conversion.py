@@ -4,14 +4,15 @@ import matplotlib.pyplot as plt
 import soundfile as sf
 import math
 from PIL import Image
-import numpy as np
 from dataset_param import *
+from utils import count_csv_lines
 
 
 '''
 https://stackoverflow.com/questions/23377665/python-scipy-fft-wav-files
 https://docs.scipy.org/doc/scipy/reference/tutorial/fft.html
 '''
+
 initial_freq = 48000
 inpath = os.path.join(os.getcwd(), 'dataset', 'rfcx-species-audio-detection')
 metadata_inpath = os.path.join(inpath, 'train_tp.csv')
@@ -29,31 +30,22 @@ def save_spectrogramm(data, sample, picture_path):
 
 def process_and_save_spectrogramm(input_path, output_path, start_audio, end_audio):
     data, sample = sf.read(input_path)
-    if duration_cut != 0:
-        nb_extraits = (end_audio - start_audio) / duration_cut
+    if DURATION_CUT != 0:
+        nb_extraits = (end_audio - start_audio) / DURATION_CUT
         nb_extraits_int = int(math.floor(nb_extraits))
         for i in range(nb_extraits_int):
-            save_spectrogramm([data[j] for j in range(int((start_audio + i * duration_cut) * initial_freq),
-                                                      int((start_audio + (i + 1) * duration_cut) * initial_freq))],
+            save_spectrogramm([data[j] for j in range(int((start_audio + i * DURATION_CUT) * initial_freq),
+                                                      int((start_audio + (i + 1) * DURATION_CUT) * initial_freq))],
                               sample,  output_path + "_" + str(i) + ".png")
 
-        if minimal_duration < end_audio - (nb_extraits_int * duration_cut) - start_audio:
-            save_spectrogramm([data[i] for i in range(int((start_audio + nb_extraits_int * duration_cut) * initial_freq)
+        if MINIMAL_DURATION < end_audio - (nb_extraits_int * DURATION_CUT) - start_audio:
+            save_spectrogramm([data[i] for i in range(int((start_audio + nb_extraits_int * DURATION_CUT) * initial_freq)
                                                       , int(end_audio * initial_freq))],
                               sample, output_path + "_" + str(nb_extraits_int) + ".png")
 
-    elif minimal_duration < end_audio - start_audio:
+    elif MINIMAL_DURATION < end_audio - start_audio:
         save_spectrogramm([data[i] for i in range(int(start_audio * initial_freq), int(end_audio * initial_freq))],
                           sample, output_path + "_0" + ".png")
-
-
-def count_line(path):
-    with open(metadata_inpath, mode='r') as file:
-        reader = csv.DictReader(file)
-        count = 0
-        for _ in reader:
-            count += 1
-        return count
 
 
 if not os.path.isdir(DATASET_DIRECTORY):
@@ -63,15 +55,19 @@ if not os.path.isdir(DATASET_TRAIN_DIRECTORY):
 if not os.path.isdir(DATASET_VAL_DIRECTORY):
     os.mkdir(DATASET_VAL_DIRECTORY)
 
-total_lines = count_line(DATASET_TRUE_TRAIN_CSV)
+total_lines = count_csv_lines(metadata_inpath)
+one_percent = int(total_lines / 100)
+percent = 0
 with open(metadata_inpath, mode='r') as csv_file:
     csv_reader = csv.DictReader(csv_file)
     line_count = 0
     for row in csv_reader:
-        if line_count % print_it == 0:
-            print(str(line_count) + " extraits traités")
+        if line_count % one_percent == 0:
+            if percent % PERCENT_PRINT == 0:
+                print(str(percent) + "%")
+            percent += 1
 
-        if train_percent > line_count / total_lines:
+        if TRAIN_PERCENT > line_count / total_lines:
             class_directory = os.path.join(DATASET_TRAIN_DIRECTORY, str(row["species_id"]))
             if not os.path.isdir(class_directory):
                 os.mkdir(class_directory)
@@ -84,4 +80,4 @@ with open(metadata_inpath, mode='r') as csv_file:
                           os.path.join(class_directory, row["recording_id"] + "_" + str(line_count)),
                           float(row["t_min"]), float(row["t_max"]))
         line_count += 1
-    print(f'Processed {line_count} lines.')
+    print('100%')
