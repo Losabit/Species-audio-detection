@@ -12,7 +12,7 @@ from dataset_param import *
 https://stackoverflow.com/questions/23377665/python-scipy-fft-wav-files
 https://docs.scipy.org/doc/scipy/reference/tutorial/fft.html
 '''
-
+initial_freq = 48000
 inpath = os.path.join(os.getcwd(), 'dataset', 'rfcx-species-audio-detection')
 metadata_inpath = os.path.join(inpath, 'train_tp.csv')
 audio_inpath = os.path.join(inpath, 'train')
