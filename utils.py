@@ -26,16 +26,9 @@ def split_array(data_to_split, percent):
         raise Exception("percent parameter need to be between 0 and 1")
 
     percent_indice = int(len(data_to_split) * percent)
-    #ne pas utiliser cela
-    return data_to_split[0..percent_indice]
+    return np.array([data_to_split[i] for i in range(percent_indice)]),\
+           np.array([data_to_split[i] for i in range(percent_indice, len(data_to_split))])
 
 
 def build_x_y(x, y):
-    x_ = np.zeros((0, 32, 32, 3), dtype=np.float32)
-    y_ = np.zeros(0, dtype=np.float32)
-    print(y_)
-    for i in range(1,len(y)):
-        y_ = np.concatenate((y_, y[i]), axis=0)
-    y_ = tf.keras.utils.to_categorical(y, 24)
-    x_ = x_/255
-    return x_, y_
+    return x, tf.keras.utils.to_categorical(y, len_classes)

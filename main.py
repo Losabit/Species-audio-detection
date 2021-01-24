@@ -4,7 +4,6 @@ from utils import *
 
 if __name__ == '__main__':
     (data, labels) = load_data()
-    print(data.shape)
-    print(labels.shape)
-    #print(split_array(data, 500).shape)
+    train_data, val_data = split_array(data, 0.8)
+    train_labels, val_labels = split_array(labels, 0.8)
 
