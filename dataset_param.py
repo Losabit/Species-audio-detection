@@ -5,13 +5,14 @@ DATASET_TRAIN_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'train')
 DATASET_VAL_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'val')
 DATASET_TEST_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'test')
 DATASET_TRUE_TRAIN_CSV = os.path.join(DATASET_DIRECTORY, 'train_tp.csv')
-IMAGE_HEIGHT = 32
-IMAGE_WIDTH = 32
+IMAGE_HEIGHT = 100
+IMAGE_WIDTH = 100
 len_classes = 24
 epch = 100
 TRAIN_PERCENT_DATA = 0.8
 KERNEL_REGULARIZERS = 0.0005
-lrTest = 0.01
+lrTest = 0.03
+batch_size = 1024
 momentumTest = 0.95
 
 ### PARAMS spectrogramm_conversion ###

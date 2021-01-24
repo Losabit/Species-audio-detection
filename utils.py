@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from dataset_param import *
 import csv
 import numpy as np
@@ -16,6 +15,8 @@ def load_data():
         csv_reader = csv.DictReader(csv_file)
         line_count = 0
         for row in csv_reader:
+            if line_count % print_it == 0:
+                print(str(line_count) + " chargés en memoires")
             labels = np.append(labels, int(row["species_id"]))
             spectro_image = image.imread(os.path.join(DATASET_TRAIN_DIRECTORY, row["recording_id"] + ".png"))
             spectro_image = np.expand_dims(spectro_image, axis=0)
