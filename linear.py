@@ -14,9 +14,9 @@ def create_base_model(add_custom_layers_func) -> Model:
     m.add(Flatten())
     m.add(tf.keras.layers.Dense(len_classes, tf.keras.activations.softmax))
     m.add(Dense(len_classes, activation=tf.keras.activations.softmax))
-    m.compile(optimizer=tf.keras.optimizers.SGD(),
-                  loss=tf.keras.losses.categorical_crossentropy,
-                  metrics=tf.keras.metrics.categorical_accuracy)
+    m.compile(optimizer=tf.keras.optimizers.SGD(lr=lrTest),
+              loss=tf.keras.losses.categorical_crossentropy,
+              metrics=tf.keras.metrics.categorical_accuracy)
 
     return m
 
@@ -25,14 +25,31 @@ def linear_mod(Seq):
     pass
 
 
+# def convNet(model):
+#     model.add(tf.keras.layers.Reshape((32, 32, 4)))
+#
+#     model.add(tf.keras.layers.Conv2D(32, (3, 3), padding='same', activation=tf.keras.activations.tanh,
+#                                      kernel_regularizer=tf.keras.regularizers.l2(KERNEL_REGULARIZERS)))
+#     model.add(tf.keras.layers.MaxPool2D())
+#
+#     model.add(tf.keras.layers.Conv2D(32, (3, 3), padding='same', activation=tf.keras.activations.tanh,
+#                                      kernel_regularizer=tf.keras.regularizers.l2(KERNEL_REGULARIZERS)))
+#     model.add(tf.keras.layers.MaxPool2D())
+#
+#     model.add(tf.keras.layers.Conv2D(32, (3, 3), padding='same', activation=tf.keras.activations.tanh,
+#                                      kernel_regularizer=tf.keras.regularizers.l2(KERNEL_REGULARIZERS)))
+#     model.add(tf.keras.layers.MaxPool2D())
+
+
 def train_model(m: Model, x, y, x_val, y_val):
-    m.fit(
+   log =  m.fit(
         x,
         y,
         validation_data=(x_val, y_val),
         epochs=epch,
-        batch_size=1024
+        batch_size=1024 * 6
     )
+   return log
 
 
 if __name__ == '__main__':
@@ -44,4 +61,8 @@ if __name__ == '__main__':
     print("data loaded")
 
     model = create_base_model(linear_mod)
-    train_model(model, train_data, train_labels, val_data, val_labels)
+    all_logs = [
+        {"value": train_model(model, train_data, train_labels, val_data, val_labels), "title": "Linear mod"},
+
+    ]
+    plot_all_logs(all_logs)
