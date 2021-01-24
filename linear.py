@@ -7,6 +7,9 @@ import numpy as np
 from utils import *
 from submission import predict_and_save_in_submission
 
+train_size = compute_train_images_count()
+val_size = compute_val_images_count()
+
 
 def create_base_model(add_custom_layers_func) -> Model:
     m = Sequential()
@@ -15,7 +18,7 @@ def create_base_model(add_custom_layers_func) -> Model:
     m.add(Flatten())
     m.add(tf.keras.layers.Dense(len_classes, tf.keras.activations.softmax))
 
-    m.compile(optimizer=tf.keras.optimizers.SGD(lr=lrTest),
+    m.compile(optimizer=tf.keras.optimizers.SGD(lr=ref_lr / ref_batch_size * batch_size),
               loss=tf.keras.losses.categorical_crossentropy,
               metrics=["categorical_accuracy"])
 
@@ -29,7 +32,7 @@ def linear_mod(Seq):
 def add_mlp_layers(model):
     model.add(tf.keras.layers.Flatten())
     for _ in range(5):
-        model.add(tf.keras.layers.Dense(2048,activation=tf.keras.activations.linear))
+        model.add(tf.keras.layers.Dense(2048, activation=tf.keras.activations.linear))
         model.add(tf.keras.layers.BatchNormalization())
         model.add(tf.keras.layers.Activation(activation=tf.keras.activations.tanh))
 
@@ -50,32 +53,62 @@ def add_convnet(model):
     model.add(tf.keras.layers.MaxPool2D())
 
 
-def train_model(m: Model, x, y, x_val, y_val):
+def train_model(m: Model, x_iterator, y_iterator):
     log = m.fit(
-        x,
-        y,
-        validation_data=(x_val, y_val),
-        epochs=epch,
-        batch_size=batch_size
+        x_iterator,
+        validation_data=y_iterator,
+        steps_per_epoch=train_size // batch_size,
+        validation_steps=val_size // batch_size,
+        epochs=epch
     )
     return log
 
 
-if __name__ == '__main__':
-    print("loading data")
-    (data, label) = load_data()
-    train_data, val_data = split_array(data, TRAIN_PERCENT_DATA)
-    train_labels, val_labels = split_array(label, TRAIN_PERCENT_DATA)
-    train_data, train_labels = build_x_y(train_data, train_labels)
-    val_data, val_labels = build_x_y(val_data, val_labels)
-    print("data loaded")
+def create_dataset_iterator(base_folder: str, size: int):
+    def inner_func():
+        return tf.keras.preprocessing.image.ImageDataGenerator(rescale=1.0 / 255).flow_from_directory(base_folder,
+                                                                                                      target_size=(
+                                                                                                          IMAGE_WIDTH,
+                                                                                                          IMAGE_HEIGHT),
+                                                                                                      batch_size=1)
 
-    model = create_base_model(add_convnet)
+    return (tf.data.Dataset.from_generator(inner_func,
+                                           output_types=(tf.float32, tf.float32),
+                                           output_shapes=(
+                                               (1, *(IMAGE_WIDTH, IMAGE_HEIGHT), 3),
+                                               (1, len_classes)
+                                           )
+                                           )
+            .take(size)
+            .unbatch()
+            .batch(batch_size)
+            .cache(f'{base_folder}/cache')
+            .repeat()
+            .prefetch(2)
+            .as_numpy_iterator()
+            )
+
+
+if __name__ == '__main__':
+
+    model = create_base_model(linear_mod)
     all_logs = [
-        {"value": train_model(model, train_data, train_labels, val_data, val_labels), "title": "Conv mod"},
+        {"value": train_model(model,
+                              create_dataset_iterator(DATASET_TRAIN_DIRECTORY, train_size),
+                              create_dataset_iterator(DATASET_VAL_DIRECTORY, val_size)),
+         "title": "linear_mod"}
     ]
     plot_all_logs(all_logs)
 
+    print("Evaluation du dataset : ")
+    print("[Train] => ")
+    model.evaluate(create_dataset_iterator(DATASET_TRAIN_DIRECTORY, train_size),
+                      steps=train_size // batch_size)
+
+    print("[Validation] => ")
+    model.evaluate(create_dataset_iterator(DATASET_VAL_DIRECTORY, val_size),
+                   steps=val_size // batch_size)
+
+
     print("start submission results")
     # predict_and_save_in_submission(model, None)
-
