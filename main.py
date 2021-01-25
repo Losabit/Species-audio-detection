@@ -2,7 +2,6 @@ import tensorflow as tf
 from tensorflow.keras import Model, Sequential
 from tensorflow.python.keras.layers import Flatten
 from tensorflow.keras.optimizers import SGD
-from sklearn.utils import class_weight
 from dataset_param import *
 import numpy as np
 from utils import *
