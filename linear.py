@@ -2,6 +2,7 @@ import tensorflow as tf
 from tensorflow.keras import Model, Sequential
 from tensorflow.python.keras.layers import Flatten
 from tensorflow.keras.optimizers import SGD
+from sklearn.utils import class_weight
 from dataset_param import *
 import numpy as np
 from utils import *
@@ -9,6 +10,7 @@ from submission import *
 
 train_size = compute_train_images_count()
 val_size = compute_val_images_count()
+class_w = compute_class_weight()
 
 
 def create_base_model(add_custom_layers_func) -> Model:
@@ -59,7 +61,8 @@ def train_model(m: Model, x_iterator, y_iterator):
         validation_data=y_iterator,
         steps_per_epoch=train_size // batch_size,
         validation_steps=val_size // batch_size,
-        epochs=epch
+        epochs=epch,
+        class_weight=class_w
     )
     return log
 
@@ -95,7 +98,7 @@ if __name__ == '__main__':
         {"value": train_model(model,
                               create_dataset_iterator(DATASET_TRAIN_DIRECTORY, train_size),
                               create_dataset_iterator(DATASET_VAL_DIRECTORY, val_size)),
-         "title": "add_mlp_layers"}
+         "title": "add_convnet"}
     ]
     plot_all_logs(all_logs)
 

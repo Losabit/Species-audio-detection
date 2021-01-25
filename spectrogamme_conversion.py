@@ -69,12 +69,3 @@ def create_spectro_dataset():
                               float(row["t_min"]), float(row["t_max"]))
             line_count += 1
         print('100%')
-
-
-if not os.path.isdir(DATASET_DIRECTORY):
-    os.mkdir(DATASET_DIRECTORY)
-if not os.path.isdir(DATASET_TRAIN_DIRECTORY):
-    os.mkdir(DATASET_TRAIN_DIRECTORY)
-if not os.path.isdir(DATASET_VAL_DIRECTORY):
-    os.mkdir(DATASET_VAL_DIRECTORY)
-create_spectro_dataset()

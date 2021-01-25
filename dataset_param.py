@@ -4,8 +4,8 @@ DATASET_DIRECTORY = os.path.join(os.getcwd(), 'dataset', 'spectrogram-species-au
 DATASET_TRAIN_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'train')
 DATASET_VAL_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'val')
 DATASET_TEST_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'test')
-IMAGE_HEIGHT = 32
-IMAGE_WIDTH = 32
+IMAGE_HEIGHT = 150
+IMAGE_WIDTH = 150
 len_classes = 24
 epch = 100
 KERNEL_REGULARIZERS = 0.0005
@@ -45,3 +45,22 @@ def compute_train_images_count():
 def compute_val_images_count():
     return compute_all_classes_images_count(DATASET_VAL_DIRECTORY)
 
+
+def compute_total_images_count():
+    return compute_val_images_count() + compute_train_images_count()
+
+
+def compute_class_weight():
+    class_weight = {}
+    for c in destination_classes:
+        class_weight[int(c)] = compute_class_images_count(DATASET_TRAIN_DIRECTORY, c)
+        class_weight[int(c)] += compute_class_images_count(DATASET_VAL_DIRECTORY, c)
+
+    # Recuperation de la classe comportortant le moins de data
+    key_min = min(class_weight.keys(), key=(lambda k: class_weight[k]))
+    to_divide = class_weight[key_min]
+
+    for c in destination_classes:
+        class_weight[int(c)] /= to_divide
+
+    return class_weight

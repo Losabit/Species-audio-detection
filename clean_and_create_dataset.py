@@ -23,8 +23,9 @@ def clean_and_create_dataset():
     if not os.path.isdir(DATASET_VAL_DIRECTORY):
         os.mkdir(DATASET_VAL_DIRECTORY)
 
+    print("Cleaning...")
     clean_dataset()
-
+    print("Creating spectro dataset...")
     create_spectro_dataset()
 
 
