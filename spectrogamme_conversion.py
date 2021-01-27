@@ -34,12 +34,12 @@ def save_spectrogramm(data, sample, picture_path):
 def process_and_save_spectrogramm(input_path, output_path, start_audio, end_audio):
     data, sample = sf.read(input_path)
 
-    for i in range(number_augmented_data_per_extract):
+    for j in range(number_augmented_data_per_extract):
 
         extension = ".png"
-        if i != 0:
+        if j != 0:
             data = augment(samples=data, sample_rate=sample)
-            extension = F"__{i}.png"
+            extension = F"__{j}.png"
 
         if DURATION_CUT != 0:
             nb_extraits = (end_audio - start_audio) / DURATION_CUT
