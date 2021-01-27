@@ -70,36 +70,12 @@ def train_model(m: Model, x_train, y_train, x_val, y_val):
     )
     return log
 
-
-def create_dataset_iterator(base_folder: str, size: int):
-    def inner_func():
-        return tf.keras.preprocessing.image.ImageDataGenerator(rescale=1.0 / 255).flow_from_directory(base_folder,
-                                                                                                      target_size=(
-                                                                                                          IMAGE_WIDTH,
-                                                                                                          IMAGE_HEIGHT),
-                                                                                                      color_mode='rgba',
-                                                                                                      batch_size=1)
-
-    return (tf.data.Dataset.from_generator(inner_func,
-                                           output_types=(tf.float32, tf.float32),
-                                           output_shapes=(
-                                               (1, *(IMAGE_WIDTH, IMAGE_HEIGHT), 4),
-                                               (1, len_classes)
-                                           )
-                                           )
-            .take(size)
-            .unbatch()
-            .batch(batch_size)
-            .cache(f'{base_folder}/cache')
-            .repeat()
-            .as_numpy_iterator()
-            )
-
-
 if __name__ == '__main__':
     model = create_base_model(add_convnet)
     x_train, y_train = load_data(DATASET_TRAIN_DIRECTORY)
     x_val, y_val = load_data(DATASET_VAL_DIRECTORY)
+    y_train = tf.keras.utils.to_categorical(y_train, len_classes)
+    y_val = tf.keras.utils.to_categorical(y_val, len_classes)
     all_logs = [
         {"value": train_model(model,
                               x_train,
@@ -109,15 +85,6 @@ if __name__ == '__main__':
          "title": "add_convnet"}
     ]
     plot_all_logs(all_logs)
-
-    print("Evaluation du dataset : ")
-    print("[Train] => ")
-    model.evaluate(create_dataset_iterator(DATASET_TRAIN_DIRECTORY, train_size),
-                   steps=train_size // batch_size)
-
-    print("[Validation] => ")
-    model.evaluate(create_dataset_iterator(DATASET_VAL_DIRECTORY, val_size),
-                   steps=val_size // batch_size)
 
     print("Sauvegarde des prédictions sur le jeu de test : ")
     predict_and_save_in_submission(model, average)
