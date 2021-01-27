@@ -19,7 +19,7 @@ def save_spectrogramm(data, sample, picture_path):
     plt.savefig(picture_path, bbox_inches='tight', pad_inches=0)
     plt.close()
     image = Image.open(picture_path)
-    image.resize((IMAGE_WIDTH, IMAGE_HEIGHT)).save(picture_path)
+    image.convert('RGB').resize((IMAGE_WIDTH, IMAGE_HEIGHT)).save(picture_path)
 
 
 def process_and_save_spectrogramm(input_path, output_path, start_audio, end_audio):
