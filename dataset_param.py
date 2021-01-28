@@ -23,7 +23,7 @@ RANDOM_CUT = True
 # minimum duration of record
 MINIMAL_DURATION = 0.5
 FREQ_MODIFIER = 0
-validation_split  = 0.2
+validation_split = 0.3
 
 ### PARAMS test_spectrogramm_conversion ###
 TEST_DURATION_CUT = 5
