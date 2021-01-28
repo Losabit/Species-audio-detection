@@ -23,7 +23,7 @@ initial_freq = 48000
 inpath = os.path.join(os.getcwd(), 'dataset', 'rfcx-species-audio-detection')
 metadata_inpath = os.path.join(inpath, 'train_tp.csv')
 audio_inpath = os.path.join(inpath, 'train')
-number_augmented_data_per_extract = 2
+number_augmented_data_per_extract = 0
 
 
 def save_spectrogramm(data, sample, picture_path):
@@ -70,39 +70,26 @@ def create_spectro_dataset():
                     print(str(percent) + "%")
                 percent += 1
 
-            if TRAIN_PERCENT > line_count / total_lines:
-                class_directory = os.path.join(DATASET_TRAIN_DIRECTORY, str(row["species_id"]))
-                if not os.path.isdir(class_directory):
-                    os.mkdir(class_directory)
-            else:
-                class_directory = os.path.join(DATASET_VAL_DIRECTORY, str(row["species_id"]))
-                if not os.path.isdir(class_directory):
-                    os.mkdir(class_directory)
+            class_directory = os.path.join(DATASET_TRAIN_DIRECTORY, str(row["species_id"]))
+            if not os.path.isdir(class_directory):
+                os.mkdir(class_directory)
 
             input_path = os.path.join(audio_inpath, row["recording_id"] + ".flac")
             output_path = os.path.join(class_directory, row["recording_id"] + "_" + str(line_count))
             data, sample = sf.read(input_path)
 
-            if DATASET_TRAIN_DIRECTORY in output_path:
+            # element 0 ne compte pas; il faut donc faire +1 pour avoir le bon nombre d'element augmenter
+            for j in range(number_augmented_data_per_extract + 1):
 
-                # element 0 ne compte pas; il faut donc faire +1 pour avoir le bon nombre d'element augmenter
-                for j in range(number_augmented_data_per_extract + 1):
+                extension = ".png"
+                if j != 0:
+                    data = augmentations[j - 1](samples=data, sample_rate=sample)
+                    extension = F"__{j}.png"
 
-                    extension = ".png"
-                    if j != 0:
-                        data = augmentations[j - 1](samples=data, sample_rate=sample)
-                        extension = F"__{j}.png"
-
-                    process_and_save_spectrogramm(data,
-                                                  sample,
-                                                  output_path,
-                                                  extension,
-                                                  float(row["t_min"]), float(row["t_max"]))
-            else:
                 process_and_save_spectrogramm(data,
                                               sample,
                                               output_path,
-                                              ".png",
+                                              extension,
                                               float(row["t_min"]), float(row["t_max"]))
             line_count += 1
         print('100%')
