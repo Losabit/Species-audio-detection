@@ -1,4 +1,4 @@
-import os
+import os, random
 
 DATASET_DIRECTORY = os.path.join(os.getcwd(), 'dataset', 'spectrogram-species-audio-detection')
 DATASET_TRAIN_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'train')
@@ -20,6 +20,7 @@ destination_classes = [str(i) for i in range(len_classes)]
 PERCENT_PRINT = 10
 # duration_cut -> Découpage des extraits en morceaux de x secondes / 0 = pas de découpage
 DURATION_CUT = 2
+RANDOM_CUT = True
 # minimum duration of record
 MINIMAL_DURATION = 0.5
 FREQ_MODIFIER = 0
@@ -27,6 +28,7 @@ TRAIN_PERCENT = 0.8
 
 ### PARAMS test_spectrogramm_conversion ###
 TEST_DURATION_CUT = 5
+TEST_RANDOM_CUT = True
 TEST_MINIMAL_DURATION = 1
 
 

@@ -24,18 +24,33 @@ def save_spectrogramm(data, sample, picture_path):
 
 def process_and_save_spectrogramm(input_path, output_path, start_audio, end_audio):
     data, sample = sf.read(input_path)
-    if DURATION_CUT != 0:
-        nb_extraits = (end_audio - start_audio) / DURATION_CUT
-        nb_extraits_int = int(math.floor(nb_extraits))
-        for i in range(nb_extraits_int):
-            save_spectrogramm([data[j] for j in range(int((start_audio + i * DURATION_CUT) * initial_freq),
-                                                      int((start_audio + (i + 1) * DURATION_CUT) * initial_freq))],
-                              sample,  output_path + "_" + str(i) + ".png")
+    duration = DURATION_CUT
 
-        if MINIMAL_DURATION < end_audio - (nb_extraits_int * DURATION_CUT) - start_audio:
-            save_spectrogramm([data[i] for i in range(int((start_audio + nb_extraits_int * DURATION_CUT) * initial_freq)
+    if RANDOM_CUT:
+        duration = random.randint(0, int(end_audio - start_audio))
+    # print(duration)
+    if duration != 0:
+        current_duration = 0
+        it = 0
+        while current_duration <= end_audio - start_audio:
+            if RANDOM_CUT:
+                duration = random.randint(1, int(end_audio - start_audio) - current_duration + 1)
+                if duration + current_duration + start_audio > end_audio:
+                    break
+            elif start_audio + current_duration + duration > end_audio:
+                break
+            # print("current : " + str(current_duration) + " / duration : " + str(duration))
+            save_spectrogramm([data[j] for j in range(int((start_audio + current_duration) * initial_freq),
+                                                      int((start_audio + current_duration + duration) * initial_freq))],
+                              sample,  output_path + "_" + str(it) + ".png")
+            current_duration += duration
+            it += 1
+
+        if MINIMAL_DURATION < end_audio - current_duration - start_audio:
+            # print("take rest : " + str(end_audio - current_duration - start_audio))
+            save_spectrogramm([data[i] for i in range(int(start_audio + current_duration * initial_freq)
                                                       , int(end_audio * initial_freq))],
-                              sample, output_path + "_" + str(nb_extraits_int) + ".png")
+                              sample, output_path + "_r.png")
 
     elif MINIMAL_DURATION < end_audio - start_audio:
         save_spectrogramm([data[i] for i in range(int(start_audio * initial_freq), int(end_audio * initial_freq))],

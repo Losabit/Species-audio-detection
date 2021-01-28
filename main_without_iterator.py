@@ -70,6 +70,7 @@ def train_model(m: Model, x_train, y_train, x_val, y_val):
     )
     return log
 
+
 if __name__ == '__main__':
     model = create_base_model(add_convnet)
     x_train, y_train = load_data(DATASET_TRAIN_DIRECTORY)

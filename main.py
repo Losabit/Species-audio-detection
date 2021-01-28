@@ -92,6 +92,11 @@ def create_dataset_iterator(base_folder: str, size: int):
 
 
 if __name__ == '__main__':
+    # Utile pour Quentin, empêche le modèle d'utiliser 100% de mon GPU 
+    config = tf.compat.v1.ConfigProto()
+    config.gpu_options.allow_growth = True
+    sess = tf.compat.v1.Session(config=config)
+
     model = create_base_model(add_convnet)
     all_logs = [
         {"value": train_model(model,
