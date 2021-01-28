@@ -6,26 +6,40 @@ import numpy as np
 from dataset_param import *
 
 
-def average(predicts):
+def average(predicts, *args):
     sum_classes = np.zeros(len_classes, dtype=np.float32)
     for predict in predicts:
+        print(predict)
         for i in range(len_classes):
             sum_classes[i] += predict[i]
     return sum_classes / len(predicts)
 
 
-def random(predicts):
+def random(predicts, *args):
     return predicts[random.randint(0, len(predicts) - 1)]
 
 
-def highest_value(predicts):
+def higher_than(predicts, limit):
+    limit = limit[0]
+    higher_prediction = np.zeros(len_classes, dtype=np.float32)
+    for predict in predicts:
+        for i in range(len_classes):
+            if predict[i] >= limit:
+                higher_prediction[i] += 1
+    total = sum(higher_prediction)
+    if total == 0:
+        return higher_than(predicts, (limit - limit / 4,))
+    return higher_prediction / total
+
+
+def highest_value(predicts, *args):
     for predict in predicts:
         for i in range(len_classes):
             if predict[i] >= 0.6:
                 return
 
 
-def predict_and_save_in_submission(model: Model, func):
+def predict_and_save_in_submission(model: Model, func, *args):
     with open(os.path.join(DATASET_DIRECTORY, "submission.csv"), mode='w', newline='') as output_csv_file:
         writer = csv.writer(output_csv_file)
         writer.writerow(["recording_id", "s0", "s1", "s2", "s3", "s4", "s5",
@@ -53,4 +67,4 @@ def predict_and_save_in_submission(model: Model, func):
                 if func is None:
                     writer.writerow(np.insert(predictions[0].astype(np.str), 0, directory, axis=0))
                 else:
-                    writer.writerow(np.insert(func(predictions).astype(np.str), 0, directory, axis=0))
+                    writer.writerow(np.insert(func(predictions, args).astype(np.str), 0, directory, axis=0))
