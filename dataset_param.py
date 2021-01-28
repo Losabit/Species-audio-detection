@@ -11,7 +11,7 @@ epch = 100
 KERNEL_REGULARIZERS = 0.0005
 ref_lr = 0.03
 ref_batch_size = 1024
-batch_size = 256
+batch_size = 5
 momentumTest = 0.95
 destination_classes = [str(i) for i in range(len_classes)]
 ### PARAMS spectrogramm_conversion ###
@@ -23,7 +23,7 @@ RANDOM_CUT = True
 # minimum duration of record
 MINIMAL_DURATION = 0.5
 FREQ_MODIFIER = 0
-TRAIN_PERCENT = 0.8
+validation_split = 0.3
 
 ### PARAMS test_spectrogramm_conversion ###
 TEST_DURATION_CUT = 5
