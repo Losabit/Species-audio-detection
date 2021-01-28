@@ -53,8 +53,7 @@ if __name__ == '__main__':
     print(F"Creating model...")
     model = create_efficient_net_models()
 
-    input_imgen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1.0 / 255,
-                                                                  validation_split=validation_split)
+    input_imgen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1.0 / 255)
 
     train_generator = MixupImageDataGenerator(generator=input_imgen,
                                               directory=DATASET_TRAIN_DIRECTORY,
@@ -63,7 +62,7 @@ if __name__ == '__main__':
                                               img_width=IMAGE_WIDTH,
                                               subset='training')
 
-    validation_generator = input_imgen.flow_from_directory(DATASET_TRAIN_DIRECTORY,
+    validation_generator = input_imgen.flow_from_directory(DATASET_VAL_DIRECTORY,
                                                            target_size=(
                                                                IMAGE_WIDTH,
                                                                IMAGE_HEIGHT),

@@ -8,6 +8,11 @@ def clean_dataset():
             for filename in os.listdir(folder):
                 os.remove(f'{folder}/{filename}')
 
+        folder = f'{DATASET_VAL_DIRECTORY}/{c}'
+        if os.path.exists(folder):
+            for filename in os.listdir(folder):
+                os.remove(f'{folder}/{filename}')
+
 
 def clean_and_create_dataset():
 
@@ -15,6 +20,8 @@ def clean_and_create_dataset():
         os.mkdir(DATASET_DIRECTORY)
     if not os.path.isdir(DATASET_TRAIN_DIRECTORY):
         os.mkdir(DATASET_TRAIN_DIRECTORY)
+    if not os.path.isdir(DATASET_VAL_DIRECTORY):
+        os.mkdir(DATASET_VAL_DIRECTORY)
 
     print("Cleaning...")
     clean_dataset()

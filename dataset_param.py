@@ -19,11 +19,11 @@ destination_classes = [str(i) for i in range(len_classes)]
 PERCENT_PRINT = 10
 # duration_cut -> Découpage des extraits en morceaux de x secondes / 0 = pas de découpage
 DURATION_CUT = 2
-RANDOM_CUT = True
+RANDOM_CUT = False
 # minimum duration of record
 MINIMAL_DURATION = 0.5
 FREQ_MODIFIER = 0
-validation_split = 0.3
+validation_split = 0.2
 
 ### PARAMS test_spectrogramm_conversion ###
 TEST_DURATION_CUT = 5
