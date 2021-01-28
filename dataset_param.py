@@ -4,8 +4,8 @@ DATASET_DIRECTORY = os.path.join(os.getcwd(), 'dataset', 'spectrogram-species-au
 DATASET_TRAIN_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'train')
 DATASET_VAL_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'val')
 DATASET_TEST_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'test')
-IMAGE_HEIGHT = 150
-IMAGE_WIDTH = 150
+IMAGE_HEIGHT = 64
+IMAGE_WIDTH = 64
 len_classes = 24
 epch = 100
 KERNEL_REGULARIZERS = 0.0005
@@ -14,7 +14,6 @@ ref_batch_size = 1024
 batch_size = 256
 momentumTest = 0.95
 destination_classes = [str(i) for i in range(len_classes)]
-
 ### PARAMS spectrogramm_conversion ###
 # Lié à IMAGE_WIDTH et IMAGE_HEIGHT
 PERCENT_PRINT = 10

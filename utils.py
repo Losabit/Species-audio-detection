@@ -45,6 +45,7 @@ def count_csv_lines(path):
 
 
 def plot_all_logs(logs):
+    print(logs)
     metrics = ['loss', 'val_loss', 'categorical_accuracy', 'val_categorical_accuracy']
     for metric in metrics:
         for log in logs:
