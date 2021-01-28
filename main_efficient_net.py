@@ -3,7 +3,7 @@ from tensorflow.keras import losses
 from tensorflow.keras import Sequential
 from tensorflow.keras import layers
 from tensorflow.keras import optimizers
-import keras.backend as K
+import tensorflow.keras.backend as K
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 from efficientnet.keras import EfficientNetB0 as EfficientNet
 from dataset_param import *

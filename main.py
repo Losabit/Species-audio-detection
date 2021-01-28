@@ -116,6 +116,6 @@ if __name__ == '__main__':
                    steps=val_size // batch_size)
 
     print("Sauvegarde des prédictions sur le jeu de test : ")
-    predict_and_save_in_submission(model, average)
+    predict_and_save_in_submission(model, higher_than, 0.4)
 
 
