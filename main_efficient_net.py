@@ -59,16 +59,15 @@ if __name__ == '__main__':
                                               directory=DATASET_TRAIN_DIRECTORY,
                                               batch_size=batch_size,  # To verify maybe error
                                               img_height=IMAGE_HEIGHT,
-                                              img_width=IMAGE_WIDTH,
-                                              subset='training')
+                                              img_width=IMAGE_WIDTH)
 
-    validation_generator = input_imgen.flow_from_directory(DATASET_VAL_DIRECTORY,
+    validation_generator = input_imgen.flow_from_directory(directory=DATASET_VAL_DIRECTORY,
                                                            target_size=(
                                                                IMAGE_WIDTH,
                                                                IMAGE_HEIGHT),
                                                            batch_size=batch_size,  # To verify maybe error
-                                                           shuffle=True,
-                                                           subset='validation')
+                                                           class_mode="categorical",
+                                                           shuffle=True)
 
     print('training steps: ', train_generator.get_steps_per_epoch())
     print('validation steps: ', validation_generator.samples // batch_size)

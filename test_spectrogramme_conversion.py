@@ -36,14 +36,14 @@ def create_test_spectro_dataset():
                 print(str(percent) + "%")
             percent += 1
 
-        duration = TEST_DURATION_CUT
-        if TEST_RANDOM_CUT:
+        duration = DURATION_CUT
+        if RANDOM_CUT:
             duration = random.randint(0, int(end_audio))
         if duration != 0:
             current_duration = 0
             it = 0
             while current_duration <= end_audio:
-                if TEST_RANDOM_CUT:
+                if RANDOM_CUT:
                     duration = random.randint(1, int(end_audio) - current_duration + 1)
                     if duration + current_duration > end_audio:
                         break
@@ -55,7 +55,7 @@ def create_test_spectro_dataset():
                 current_duration += duration
                 it += 1
 
-            if TEST_MINIMAL_DURATION < end_audio - current_duration:
+            if MINIMAL_DURATION < end_audio - current_duration:
                 save_spectrogramm([data[i] for i in range(int(current_duration * initial_freq)
                                                           , int(end_audio * initial_freq))],
                                   sample, new_file_path + "_r.png")
