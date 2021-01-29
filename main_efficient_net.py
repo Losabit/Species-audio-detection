@@ -5,7 +5,7 @@ from tensorflow.keras import layers
 from tensorflow.keras import optimizers
 import tensorflow.keras.backend as K
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
-from efficientnet.keras import EfficientNetB0 as EfficientNet
+from efficientnet.tfkeras import EfficientNetB0 as EfficientNet
 from dataset_param import *
 import numpy as np
 from utils import *
@@ -50,6 +50,11 @@ def train_model(m, x_iterator, y_iterator):
 
 
 if __name__ == '__main__':
+    if tf.test.gpu_device_name():
+        print('Default GPU Device:{}'.format(tf.test.gpu_device_name()))
+    else:
+        print("Please install GPU version of TF")
+
     print(F"Creating model...")
     model = create_efficient_net_models()
 
@@ -90,4 +95,4 @@ if __name__ == '__main__':
                    steps=validation_generator.samples // batch_size)
 
     print(F"Sauvegarde des prédictions a partir du modele...")
-    predict_and_save_in_submission(model, average)
+    predict_and_save_in_submission(model, higher_than, 0.4)
