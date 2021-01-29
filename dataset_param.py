@@ -4,8 +4,8 @@ DATASET_DIRECTORY = os.path.join(os.getcwd(), 'dataset', 'spectrogram-species-au
 DATASET_TRAIN_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'train')
 DATASET_VAL_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'val')
 DATASET_TEST_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'test')
-IMAGE_HEIGHT = 64
-IMAGE_WIDTH = 64
+IMAGE_HEIGHT = 128
+IMAGE_WIDTH = 128
 # Créer une 25eme classe qui ne correspond à aucun oiseau
 USE_EMPTY_CLASS = True
 len_classes = 25 if USE_EMPTY_CLASS else 24
@@ -13,7 +13,7 @@ epch = 100
 KERNEL_REGULARIZERS = 0.0005
 ref_lr = 0.03
 ref_batch_size = 1024
-batch_size = 5
+batch_size = 4
 momentumTest = 0.95
 destination_classes = [str(i) for i in range(len_classes)]
 ### PARAMS spectrogramm_conversion ###
@@ -28,12 +28,8 @@ RATIO_EMPTY_CLASS = 48
 # minimum duration of record
 MINIMAL_DURATION = 0.5
 FREQ_MODIFIER = 0
-validation_split = 0.3
-
-### PARAMS test_spectrogramm_conversion ###
-TEST_DURATION_CUT = 5
-TEST_RANDOM_CUT = True
-TEST_MINIMAL_DURATION = 1
+validation_split = 0.2
+number_augmented_data_per_extract = 0
 
 
 def compute_class_images_count(base_folder: str, class_name: str):
