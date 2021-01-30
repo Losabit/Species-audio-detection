@@ -11,6 +11,7 @@ epch = 100
 KERNEL_REGULARIZERS = 0.0005
 ref_lr = 0.03
 ref_batch_size = 1024
+dropout = 0.2
 batch_size = 4
 momentumTest = 0.95
 destination_classes = [str(i) for i in range(len_classes)]

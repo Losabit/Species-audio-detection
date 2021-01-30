@@ -5,7 +5,7 @@ from tensorflow.keras import layers
 from tensorflow.keras import optimizers
 import tensorflow.keras.backend as K
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
-from efficientnet.keras import EfficientNetB0 as EfficientNet
+from efficientnet.keras import EfficientNetB1 as EfficientNet
 from dataset_param import *
 import numpy as np
 from utils import *
@@ -30,7 +30,7 @@ def create_efficient_net_models():
         EfficientNet(include_top=False, weights='imagenet', input_tensor=inputs),
         layers.GlobalAveragePooling2D(name="avg_pool"),
         layers.BatchNormalization(),
-        layers.Dropout(0.2, name="top_dropout"),
+        layers.Dropout(dropout, name="top_dropout"),
         layers.Dense(len_classes, activation="softmax", name="pred")
     ])
     m.compile(loss=losses.CategoricalCrossentropy(),
@@ -46,6 +46,7 @@ def train_model(m, x_iterator, y_iterator):
                 validation_steps=y_iterator.samples // batch_size,
                 epochs=epch,
                 callbacks=get_callbacks())
+    # Retest with class_weights
     return log
 
 

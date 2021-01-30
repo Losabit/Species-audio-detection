@@ -14,7 +14,7 @@ def save_spectrogramm(d, s, picture_path):
     plt.savefig(picture_path, bbox_inches='tight', pad_inches=0)
     plt.close()
     image = Image.open(picture_path)
-    image.resize((IMAGE_WIDTH, IMAGE_HEIGHT)).save(picture_path)
+    image.convert('RGB').resize((IMAGE_WIDTH, IMAGE_HEIGHT)).save(picture_path)
 
 
 def create_test_spectro_dataset():
