@@ -1,5 +1,5 @@
-from spectrogamme_conversion import *
-from test_spectrogramme_conversion import create_test_spectro_dataset
+from Dataset_Creator.spectrogamme_conversion import *
+from Dataset_Creator.test_spectrogramme_conversion import create_test_spectro_dataset
 import shutil
 
 dataset_type = [
@@ -50,6 +50,6 @@ def clean_and_create_dataset(dataset):
 
 if __name__ == "__main__":
     # Change dataset_type pour generer test_val ou test
-    # 0 == test & val
+    # 0 == train & val
     # 1 == test
-    clean_and_create_dataset(dataset_type[1])
+    clean_and_create_dataset(dataset_type[0])

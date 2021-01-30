@@ -4,7 +4,7 @@ import math
 from PIL import Image
 from dataset_param import *
 
-test_path = os.path.join(os.getcwd(), 'dataset', 'rfcx-species-audio-detection', 'test')
+test_path = os.path.join(os.getcwd(), '../dataset', 'rfcx-species-audio-detection', 'test')
 initial_freq = 48000
 
 

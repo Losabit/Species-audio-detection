@@ -6,7 +6,9 @@ DATASET_VAL_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'val')
 DATASET_TEST_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'test')
 IMAGE_HEIGHT = 128
 IMAGE_WIDTH = 128
-len_classes = 24
+# Créer une 25eme classe qui ne correspond à aucun oiseau
+USE_EMPTY_CLASS = True
+len_classes = 25 if USE_EMPTY_CLASS else 24
 epch = 100
 KERNEL_REGULARIZERS = 0.0005
 ref_lr = 0.03
@@ -21,6 +23,9 @@ PERCENT_PRINT = 10
 # duration_cut -> Découpage des extraits en morceaux de x secondes / 0 = pas de découpage
 DURATION_CUT = 2
 RANDOM_CUT = True
+# Un ratio de 5 permet de sauvegarder 1 enregistrement de la 25eme classe sur 5
+# Evite d'avoir une 25eme classe trop chargée en données (sachant que 1 enregistrement contient au minimum 2 extraits)
+RATIO_EMPTY_CLASS = 48
 # minimum duration of record
 MINIMAL_DURATION = 0.5
 FREQ_MODIFIER = 0

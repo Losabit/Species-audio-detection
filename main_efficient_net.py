@@ -51,6 +51,11 @@ def train_model(m, x_iterator, y_iterator):
 
 
 if __name__ == '__main__':
+    if tf.test.gpu_device_name():
+        print('Default GPU Device:{}'.format(tf.test.gpu_device_name()))
+    else:
+        print("Please install GPU version of TF")
+
     print(F"Creating model...")
     model = create_efficient_net_models()
 
@@ -89,4 +94,4 @@ if __name__ == '__main__':
                    steps=validation_generator.samples // batch_size)
 
     print(F"Sauvegarde des prédictions a partir du modele...")
-    predict_and_save_in_submission(model, average)
+    predict_and_save_in_submission(model, higher_than, 0.4)
