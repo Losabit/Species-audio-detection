@@ -20,9 +20,8 @@ augmentations = [
 ]
 
 initial_freq = 48000
-inpath = os.path.join(os.getcwd(), 'dataset', 'rfcx-species-audio-detection')
-metadata_inpath = os.path.join(inpath, 'train_tp.csv')
-audio_inpath = os.path.join(inpath, 'train')
+metadata_inpath = os.path.join(ORIGINAL_DATASET_DIRECTORY, 'train_tp.csv')
+audio_inpath = os.path.join(ORIGINAL_DATASET_DIRECTORY, 'train')
 
 
 def save_spectrogramm(data, sample, picture_path):

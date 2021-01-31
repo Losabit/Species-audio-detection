@@ -5,7 +5,7 @@ from tensorflow.keras import layers
 from tensorflow.keras import optimizers
 import tensorflow.keras.backend as K
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
-from efficientnet.keras import EfficientNetB1 as EfficientNet
+from efficientnet.tfkeras import EfficientNetB1 as EfficientNet
 from dataset_param import *
 import numpy as np
 from utils import *
@@ -18,9 +18,15 @@ def get_callbacks():
                                   verbose=1, mode='auto', min_delta=0.0001,
                                   cooldown=0, min_lr=0)
 
-    early_stopping = EarlyStopping(monitor="val_loss", patience=7, verbose=1)
+    early_stopping = EarlyStopping(monitor="val_loss", patience=7, verbose=1, restore_best_weights=True)
 
-    return [early_stopping, reduce_lr]
+    model_cp = ModelCheckpoint(WEIGHT_FILE_NAME,
+                               save_best_only=True,
+                               save_weights_only=True,
+                               monitor='val_loss',
+                               mode='min', verbose=1)
+
+    return [early_stopping, model_cp, reduce_lr]
 
 
 def create_efficient_net_models():
@@ -46,7 +52,6 @@ def train_model(m, x_iterator, y_iterator):
                 validation_steps=y_iterator.samples // batch_size,
                 epochs=epch,
                 callbacks=get_callbacks())
-    # Retest with class_weights
     return log
 
 
@@ -92,6 +97,3 @@ if __name__ == '__main__':
     validation_generator._set_index_array()
     model.evaluate(validation_generator,
                    steps=validation_generator.samples // batch_size)
-
-    print(F"Sauvegarde des prédictions a partir du modele...")
-    predict_and_save_in_submission(model, higher_than, 0.4)

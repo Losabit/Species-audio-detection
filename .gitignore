@@ -1,6 +1,7 @@
 dataset/*
 .idea/*
 .idea/
-__pycache__/
 __pycache__/*
-EfficientNet-weights/*
+__pycache__/
+EfficientNet_Weights/*
+EfficientNet_Weights/
