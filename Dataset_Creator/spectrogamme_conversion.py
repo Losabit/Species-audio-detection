@@ -52,7 +52,7 @@ def process_data_and_save_spectrogramm(row_data, is_train):
     row_species = row_data["species_id"]
 
     data, sample = sf.read(os.path.join(audio_inpath, recording_id + ".flac"))
-    end_audio = len(data) / sample
+    end_audio = len(data) // sample
 
     while current_duration <= end_audio:
 
@@ -65,6 +65,9 @@ def process_data_and_save_spectrogramm(row_data, is_train):
 
         class_directory = determine_class_directory(t_min, t_max, current_duration, duration, row_species, is_train)
         is_empty_extract = str(len_classes - 1) in class_directory
+
+        max_duration_size = len(data) - 1 if len(data) <= (int((current_duration + duration) * initial_freq)) \
+            else (int((current_duration + duration) * initial_freq))
 
         if is_empty_extract and number_extract_created % RATIO_EMPTY_CLASS == 0:
             create_empty_extract = True
@@ -80,7 +83,7 @@ def process_data_and_save_spectrogramm(row_data, is_train):
         extract_path = os.path.join(class_directory, recording_id)
 
         save_spectrogramm([data[j] for j in range(int(current_duration * initial_freq),
-                                                  int((current_duration + duration) * initial_freq))],
+                                                  max_duration_size)],
                           sample,
                           duration,
                           extract_path + "_" + str(it) + ".png")
@@ -90,7 +93,7 @@ def process_data_and_save_spectrogramm(row_data, is_train):
             extract_path += F"_{str(it)}__{to_data_aug}.png"
 
             save_spectrogramm([new_data[j] for j in range(int(current_duration * initial_freq),
-                                                          int((current_duration + duration) * initial_freq))],
+                                                          max_duration_size)],
                               sample,
                               duration,
                               extract_path)
