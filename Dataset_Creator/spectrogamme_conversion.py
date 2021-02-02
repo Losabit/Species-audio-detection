@@ -4,9 +4,8 @@ import matplotlib.pyplot as plt
 import soundfile as sf
 import pandas as pd
 from audiomentations import Compose, AddGaussianNoise, AddGaussianSNR, FrequencyMask
-from PIL import Image
 from dataset_param import *
-from utils import count_csv_lines
+from utils import count_csv_lines, save_spectrogramm
 
 augmentations = [
     Compose([
@@ -22,97 +21,106 @@ augmentations = [
 initial_freq = 48000
 metadata_inpath = os.path.join(ORIGINAL_DATASET_DIRECTORY, 'train_tp.csv')
 audio_inpath = os.path.join(ORIGINAL_DATASET_DIRECTORY, 'train')
+number_extract_created = 0
 
 
-def save_spectrogramm(data, sample, picture_path):
-    xx, frequency, bins, im = plt.specgram(data, Fs=sample)
-    plt.axis('off')
-    plt.savefig(picture_path, bbox_inches='tight', pad_inches=0)
-    plt.close()
-    image = Image.open(picture_path)
-    image.convert('RGB').resize((IMAGE_WIDTH, IMAGE_HEIGHT)).save(picture_path)
+def determine_class_directory(t_min, t_max, current_duration, duration, species_id, is_train):
+    class_directory = ""
+    dataset_directory = DATASET_TRAIN_DIRECTORY if is_train else DATASET_VAL_DIRECTORY
+
+    if t_min <= current_duration <= t_max or \
+            (t_min <= current_duration + duration <= t_max
+             and t_max - (current_duration + duration) > MINIMAL_ANIMAL_PRESENCE) \
+            or (current_duration <= t_min and current_duration + duration >= t_max):
+
+        class_directory = os.path.join(dataset_directory, str(species_id))
+
+    elif USE_EMPTY_CLASS and (current_duration + duration <= t_min or current_duration >= t_max):
+        class_directory = os.path.join(dataset_directory, str(len_classes - 1))
+
+    return class_directory
 
 
-def process_data_augmentation_and_save_spectrogramm(d, sample_rate, output_path, start, end):
-    # element 0 ne compte pas; il faut donc faire +1 pour avoir le bon nombre d'element augmenter
-    for j in range(number_augmented_data_per_extract + 1):
-        if j != 0:
-            data = augmentations[j - 1](samples=d, sample_rate=sample_rate)
-            output_path += F"__{j}"
-
-        process_and_save_spectrogramm(d,
-                                      sample_rate,
-                                      output_path,
-                                      start, end)
-
-
-def process_empty_class(func, data, sample, row, out_path, out_empty_path):
-    start = 0
-    end = len(data) // sample
-    func(data, sample, out_empty_path + "_" + str(1), start, row['t_min'])
-    func(data, sample, out_path, row['t_min'], row['t_max'])
-    func(data, sample, out_empty_path + "_" + str(2), row['t_max'], end)
-
-
-def proccess_recurrent_recordid_empty_class(func, data, sample, records, out_path, out_empty_path):
+def process_data_and_save_spectrogramm(row_data, is_train):
+    global number_extract_created
+    current_duration = 0
     it = 0
-    start = 0
-    end = len(data) // sample
-    func(data, sample, out_empty_path + "_" + str(start), start, records.iloc[0]['t_min'])
-    while it < len(records):
-        func(data, sample, out_path + "_" + str(records.iloc[it]['t_min']),
-             records.iloc[it]['t_min'], records.iloc[it]['t_max'])
-        if it + 1 < len(records) and records.iloc[it]['t_max'] < records.iloc[it + 1]['t_min']:
-            func(data, sample, out_empty_path + "_" + str(records.iloc[it]['t_max']),
-                 records.iloc[it]['t_max'], records.iloc[it + 1]['t_min'])
-        it += 1
-    func(data, sample, out_empty_path + "_" + str(records.iloc[len(records) - 1]['t_max']),
-         records.iloc[len(records) - 1]['t_max'], end)
+    to_data_aug = 0
+    t_min = row_data["t_min"]
+    t_max = row_data["t_max"]
+    recording_id = row_data["recording_id"]
+    row_species = row_data["species_id"]
 
+    data, sample = sf.read(os.path.join(audio_inpath, recording_id + ".flac"))
+    end_audio = len(data) / sample
 
-def process_and_save_spectrogramm(data, sample, output_path, start_audio, end_audio):
-    if end_audio - start_audio < MINIMAL_DURATION:
-        return
-    duration = DURATION_CUT
-    if RANDOM_CUT:
-        duration = random.randint(0, int(end_audio - start_audio))
-    # print(duration)
-    if duration != 0:
-        current_duration = 0
-        it = 0
-        while current_duration <= end_audio - start_audio:
-            if RANDOM_CUT:
-                duration = random.randint(1, int(end_audio - start_audio) - current_duration + 1)
-                if duration + current_duration + start_audio > end_audio:
-                    break
-            elif start_audio + current_duration + duration > end_audio:
-                break
-            # print("current : " + str(current_duration) + " / duration : " + str(duration))
-            save_spectrogramm([data[j] for j in range(int((start_audio + current_duration) * initial_freq),
-                                                      int((start_audio + current_duration + duration) * initial_freq))],
-                              sample,  output_path + "_" + str(it) + ".png")
+    while current_duration <= end_audio:
+
+        duration = DURATION_CUT
+        class_directory = ""
+        create_empty_extract = False
+
+        # if RANDOM_CUT:
+        #  duration += random.randint(0, len())
+
+        class_directory = determine_class_directory(t_min, t_max, current_duration, duration, row_species, is_train)
+        is_empty_extract = str(len_classes - 1) in class_directory
+
+        if is_empty_extract and number_extract_created % RATIO_EMPTY_CLASS == 0:
+            create_empty_extract = True
+
+        if class_directory == "":
             current_duration += duration
-            it += 1
+            continue
 
-        if MINIMAL_DURATION < end_audio - current_duration - start_audio:
-            # print("take rest : " + str(end_audio - current_duration - start_audio))
-            save_spectrogramm([data[i] for i in range(int(start_audio + current_duration * initial_freq)
-                                                      , int(end_audio * initial_freq))],
-                              sample, output_path + "_r.png")
-    elif MINIMAL_DURATION < end_audio - start_audio:
-        save_spectrogramm(
-            [data[i] for i in range(int(start_audio * initial_freq), int(end_audio * initial_freq))],
-            sample, output_path + "_0.png")
+        if is_empty_extract and not create_empty_extract:
+            current_duration += duration
+            continue
+
+        extract_path = os.path.join(class_directory, recording_id)
+
+        save_spectrogramm([data[j] for j in range(int(current_duration * initial_freq),
+                                                  int((current_duration + duration) * initial_freq))],
+                          sample,
+                          duration,
+                          extract_path + "_" + str(it) + ".png")
+
+        if USE_DATA_AUGMENTATION and is_train is False and to_data_aug % RATIO_DATA_AUG == 0:
+            new_data = augmentations[to_data_aug % 2](samples=data, sample_rate=sample)
+            extract_path += F"_{str(it)}__{to_data_aug}.png"
+
+            save_spectrogramm([new_data[j] for j in range(int(current_duration * initial_freq),
+                                                          int((current_duration + duration) * initial_freq))],
+                              sample,
+                              duration,
+                              extract_path)
+            to_data_aug += 1
+
+        current_duration += duration
+        it += 1
+        number_extract_created += 1
+
+    if MINIMAL_DURATION < end_audio - current_duration:
+        duration = DURATION_CUT
+        row_species = row_data["species_id"]
+
+        class_directory = determine_class_directory(t_min, t_max, current_duration, duration, row_species, is_train)
+        extract_path = os.path.join(class_directory, recording_id)
+
+        save_spectrogramm([data[i] for i in range(int(current_duration * initial_freq)
+                                                  , int(end_audio * initial_freq))],
+                          sample,
+                          (end_audio - current_duration),
+                          extract_path + "_r.png")
+        number_extract_created += 1
 
 
 def create_spectro_dataset():
     train = pd.read_csv(metadata_inpath).sort_values("recording_id")
-    if USE_EMPTY_CLASS:
-        duplicated_records = train[train.duplicated(subset=['recording_id'], keep=False)] \
-            .filter(items=['recording_id', 't_min', 't_max'])
-        duplicated_finish = []
+
     one_percent = int(len(train) / 100)
     percent = 0
+
     for index, row in train.iterrows():
         if index % one_percent == 0:
             if percent % PERCENT_PRINT == 0:
@@ -120,37 +128,8 @@ def create_spectro_dataset():
             percent += 1
 
         if (1 - validation_split) > index / len(train):
-            class_directory = os.path.join(DATASET_TRAIN_DIRECTORY, str(row["species_id"]))
-            func = process_data_augmentation_and_save_spectrogramm
-            if USE_EMPTY_CLASS:
-                empty_class_directory = os.path.join(DATASET_TRAIN_DIRECTORY, str(len_classes - 1))
+            process_data_and_save_spectrogramm(row, is_train=True)
         else:
-            class_directory = os.path.join(DATASET_VAL_DIRECTORY, str(row["species_id"]))
-            func = process_and_save_spectrogramm
-            if USE_EMPTY_CLASS:
-                empty_class_directory = os.path.join(DATASET_VAL_DIRECTORY, str(len_classes - 1))
-
-        if not os.path.isdir(class_directory):
-            os.mkdir(class_directory)
-
-        output_path = os.path.join(class_directory, row["recording_id"] + "_" + str(index))
-        data, sample = sf.read(os.path.join(audio_inpath, row["recording_id"] + ".flac"))
-
-        if USE_EMPTY_CLASS and index % RATIO_EMPTY_CLASS == 0:
-            if not os.path.isdir(empty_class_directory):
-                os.mkdir(empty_class_directory)
-            output_empty_path = os.path.join(empty_class_directory, row["recording_id"] + "_" + str(index))
-
-            if row['recording_id'] in duplicated_finish:
-                continue
-            elif len(duplicated_records[duplicated_records['recording_id'] == row['recording_id']]) > 0:
-                records = duplicated_records[duplicated_records['recording_id'] == row['recording_id']].sort_values(
-                    "t_min")
-                duplicated_finish.append(row['recording_id'])
-                proccess_recurrent_recordid_empty_class(func, data, sample, records, output_path, output_empty_path)
-            else:
-                process_empty_class(func, data, sample, row, output_path, output_empty_path)
-        else:
-            func(data, sample, output_path, row['t_min'], row['t_max'])
+            process_data_and_save_spectrogramm(row, is_train=False)
 
     print('100%')

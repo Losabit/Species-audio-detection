@@ -1,20 +1,11 @@
 import matplotlib.pyplot as plt
 import soundfile as sf
 import math
-from PIL import Image
 from dataset_param import *
+from utils import save_spectrogramm
 
 test_path = os.path.join(ORIGINAL_DATASET_DIRECTORY, 'test')
 initial_freq = 48000
-
-
-def save_spectrogramm(d, s, picture_path):
-    xx, frequency, bins, im = plt.specgram(d, Fs=s)
-    plt.axis('off')
-    plt.savefig(picture_path, bbox_inches='tight', pad_inches=0)
-    plt.close()
-    image = Image.open(picture_path)
-    image.convert('RGB').resize((IMAGE_WIDTH, IMAGE_HEIGHT)).save(picture_path)
 
 
 def create_test_spectro_dataset():
@@ -37,30 +28,24 @@ def create_test_spectro_dataset():
             percent += 1
 
         duration = DURATION_CUT
-        if RANDOM_CUT:
-            duration = random.randint(0, int(end_audio))
-        if duration != 0:
-            current_duration = 0
-            it = 0
-            while current_duration <= end_audio:
-                if RANDOM_CUT:
-                    duration = random.randint(1, int(end_audio) - current_duration + 1)
-                    if duration + current_duration > end_audio:
-                        break
-                elif current_duration + duration > end_audio:
-                    break
-                save_spectrogramm([data[j] for j in range(int(current_duration * initial_freq),
-                                                          int((current_duration + duration) * initial_freq))],
-                                  sample,  new_file_path + "_" + str(it) + ".png")
-                current_duration += duration
-                it += 1
+        # if RANDOM_CUT:
+        #  duration += random.randint(0, len())
 
-            if MINIMAL_DURATION < end_audio - current_duration:
-                save_spectrogramm([data[i] for i in range(int(current_duration * initial_freq)
-                                                          , int(end_audio * initial_freq))],
-                                  sample, new_file_path + "_r.png")
-        else:
-            save_spectrogramm(data, sample, new_file_path + ".png")
+        current_duration = 0
+        it = 0
+        while current_duration <= end_audio:
+            save_spectrogramm([data[j] for j in range(int(current_duration * initial_freq),
+                                                      int((current_duration + duration) * initial_freq))],
+                              duration,
+                              sample, new_file_path + "_" + str(it) + ".png")
+            current_duration += duration
+            it += 1
+
+        if MINIMAL_DURATION < end_audio - current_duration:
+            save_spectrogramm([data[i] for i in range(int(current_duration * initial_freq)
+                                                      , int(end_audio * initial_freq))],
+                              (end_audio - current_duration),
+                              sample, new_file_path + "_r.png")
 
         line_count += 1
 

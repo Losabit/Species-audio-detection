@@ -6,6 +6,17 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 from matplotlib import image
 from dataset_param import *
+from PIL import Image
+
+
+def save_spectrogramm(d, s, duration, picture_path):
+    xx, frequency, bins, im = plt.specgram(d, Fs=s)
+    plt.axis('off')
+    plt.savefig(picture_path, bbox_inches='tight', pad_inches=0)
+    plt.close()
+    image = Image.open(picture_path)
+    img_width = int((duration / 10) * IMAGE_WIDTH)
+    image.convert('RGB').resize((img_width, IMAGE_HEIGHT)).save(picture_path)
 
 
 def load_data(path):
@@ -27,7 +38,7 @@ def split_array(data_to_split, percent):
         raise Exception("percent parameter need to be between 0 and 1")
 
     percent_indice = int(len(data_to_split) * percent)
-    return np.array([data_to_split[i] for i in range(percent_indice)]),\
+    return np.array([data_to_split[i] for i in range(percent_indice)]), \
            np.array([data_to_split[i] for i in range(percent_indice, len(data_to_split))])
 
 
@@ -54,4 +65,3 @@ def plot_all_logs(logs):
             plt.plot(x_coords, y_coords)
             plt.title(log['title'] + " - " + datetime.now().strftime("%Hh:%Mm:%Ss") + " - " + metric)
             plt.show()
-

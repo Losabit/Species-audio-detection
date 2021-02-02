@@ -12,7 +12,7 @@ DATASET_VAL_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'val')
 DATASET_TEST_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'test')
 WEIGHT_FILE_NAME = "EfficientNet_Weights/EfficientNetBN_tl_best_weights.h5"
 IMAGE_HEIGHT = 128
-IMAGE_WIDTH = 128
+IMAGE_WIDTH = 500
 # Créer une 25eme classe qui ne correspond à aucun oiseau
 USE_EMPTY_CLASS = True
 len_classes = 25 if USE_EMPTY_CLASS else 24
@@ -28,17 +28,19 @@ destination_classes = [str(i) for i in range(len_classes)]
 # Lié à IMAGE_WIDTH et IMAGE_HEIGHT
 PERCENT_PRINT = 10
 # duration_cut -> Découpage des extraits en morceaux de x secondes / 0 = pas de découpage
-DURATION_CUT = 2
+DURATION_CUT = 10
 RANDOM_CUT = True
 # Un ratio de 5 permet de sauvegarder 1 enregistrement de la 25eme classe sur 5
 # Evite d'avoir une 25eme classe trop chargée en données (sachant que 1 enregistrement contient au minimum 2 extraits)
-RATIO_EMPTY_CLASS = 40
+RATIO_EMPTY_CLASS = 24
 PRED_EMPTY_IGNORE_EXTRACT = 0.6
 # minimum duration of record
 MINIMAL_DURATION = 0.5
+MINIMAL_ANIMAL_PRESENCE = 0.5
 FREQ_MODIFIER = 0
 validation_split = 0.2
-number_augmented_data_per_extract = 0
+USE_DATA_AUGMENTATION = False
+RATIO_DATA_AUG = 2
 
 
 def compute_class_images_count(base_folder: str, class_name: str):
