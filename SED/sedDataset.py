@@ -32,11 +32,12 @@ class SedDataset:
             effective_length = self.period * sr
             stride = self.stride * sr
             y = np.stack([y[i:i + effective_length].astype(np.float32) for i in
-                          range(0, 60 * sr + stride - effective_length, stride)])
-            label = np.zeros(24, dtype='f')
-            if self.mode == "valid":
-                for i in record['species_id']:
-                    label[i] = 1
+                          range(0, 60 * sr + stride - effective_length, stride)], dtype='d')
+            #dans le else de base
+        label = np.zeros(24, dtype='d')
+        # if self.mode == "valid":
+        for i in record['species_id']:
+            label[i] = 1
 
         return {
             "image": y,

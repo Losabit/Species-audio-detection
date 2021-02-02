@@ -30,11 +30,12 @@ train_audio_transform = AA.Compose([
 def train_epoch(args, model, loader, criterion, optimizer, scheduler, epoch):
     losses = AverageMeter()
     scores = MetricMeter()
-
     model.train()
+    model.double()
     t = tqdm(loader)
     for i, sample in enumerate(t):
         optimizer.zero_grad()
+        print(type(sample['image']))
         input = sample['image'].to(args.device)
         target = sample['target'].to(args.device)
         output = model(input)
