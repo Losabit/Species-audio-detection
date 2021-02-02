@@ -28,9 +28,9 @@ def determine_class_directory(t_min, t_max, current_duration, duration, species_
     class_directory = ""
     dataset_directory = DATASET_TRAIN_DIRECTORY if is_train else DATASET_VAL_DIRECTORY
 
-    if t_min <= current_duration <= t_max or \
+    if (t_min <= current_duration <= t_max and t_max - current_duration >= MINIMAL_ANIMAL_PRESENCE) or \
             (t_min <= current_duration + duration <= t_max
-             and t_max - (current_duration + duration) > MINIMAL_ANIMAL_PRESENCE) \
+             and t_max - (current_duration + duration) >= MINIMAL_ANIMAL_PRESENCE) \
             or (current_duration <= t_min and current_duration + duration >= t_max):
 
         class_directory = os.path.join(dataset_directory, str(species_id))
