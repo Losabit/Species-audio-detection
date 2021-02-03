@@ -13,6 +13,7 @@ DATASET_TEST_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'test')
 WEIGHT_FILE_NAME = "EfficientNet_Weights/EfficientNetBN_tl_best_weights.h5"
 IMAGE_HEIGHT = 284
 IMAGE_WIDTH = 512
+
 # Créer une 25eme classe qui ne correspond à aucun oiseau
 USE_EMPTY_CLASS = False
 len_classes = 25 if USE_EMPTY_CLASS else 24
