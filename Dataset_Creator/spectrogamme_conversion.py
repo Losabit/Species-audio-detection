@@ -52,9 +52,11 @@ def process_data_and_save_spectrogramm(row_data, is_train):
     row_species = row_data["species_id"]
 
     data, sample = sf.read(os.path.join(audio_inpath, recording_id + ".flac"))
-    end_audio = len(data) / sample
+    end_audio = len(data) - 1 / sample
 
-    while current_duration <= end_audio - 0.1:
+    print(F"processing {recording_id}, species : {row_species} [{t_min},{t_max}] duration({end_audio/initial_freq})")
+
+    while current_duration <= (end_audio / initial_freq):
 
         duration = DURATION_CUT
         create_empty_extract = False
@@ -75,6 +77,8 @@ def process_data_and_save_spectrogramm(row_data, is_train):
         if is_empty_extract and not create_empty_extract:
             current_duration += duration
             continue
+
+        print(F"Current duration : {current_duration} => Class_directory({class_directory}) )")
 
         extract_path = os.path.join(class_directory, recording_id)
 
@@ -102,19 +106,21 @@ def process_data_and_save_spectrogramm(row_data, is_train):
         it += 1
         number_extract_created += 1
 
-    if end_audio - current_duration >= MINIMAL_DURATION:
+    print(F"{(end_audio / initial_freq) - current_duration} >= Minimal duration ?? )")
+    if (end_audio / initial_freq) - current_duration >= MINIMAL_DURATION:
         duration = DURATION_CUT
         row_species = row_data["species_id"]
 
         class_directory = determine_class_directory(t_min, t_max, current_duration, duration, row_species, is_train)
-        extract_path = os.path.join(class_directory, recording_id)
+        if class_directory != "":
+            extract_path = os.path.join(class_directory, recording_id)
 
-        save_spectrogramm([data[i] for i in range(int(current_duration * initial_freq)
-                                                  , int(end_audio * initial_freq))],
-                          sample,
-                          (end_audio - current_duration),
-                          extract_path + "_r.png")
-        number_extract_created += 1
+            save_spectrogramm([data[i] for i in range(int(current_duration * initial_freq)
+                                                      , int(end_audio * initial_freq))],
+                              sample,
+                              (end_audio - current_duration),
+                              extract_path + "_r.png")
+            number_extract_created += 1
 
 
 def create_spectro_dataset():
