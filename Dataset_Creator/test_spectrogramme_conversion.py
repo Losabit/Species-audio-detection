@@ -33,18 +33,16 @@ def create_test_spectro_dataset():
 
         current_duration = 0
         it = 0
-        while current_duration <= end_audio:
+        while current_duration <= (end_audio / initial_freq):
             save_spectrogramm([data[j] for j in range(int(current_duration * initial_freq),
                                                       int((current_duration + duration) * initial_freq))],
-                              duration,
                               sample, new_file_path + "_" + str(it) + ".png")
             current_duration += duration
             it += 1
 
-        if MINIMAL_DURATION < end_audio - current_duration:
+        if MINIMAL_DURATION < (end_audio / initial_freq) - current_duration:
             save_spectrogramm([data[i] for i in range(int(current_duration * initial_freq)
                                                       , int(end_audio * initial_freq))],
-                              (end_audio - current_duration),
                               sample, new_file_path + "_r.png")
 
         line_count += 1

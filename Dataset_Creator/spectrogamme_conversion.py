@@ -88,7 +88,6 @@ def process_data_and_save_spectrogramm(row_data, is_train):
         save_spectrogramm([data[j] for j in range(int(current_duration * initial_freq),
                                                   max_duration_size)],
                           sample,
-                          duration,
                           extract_path + "_" + str(it) + ".png")
 
         if USE_DATA_AUGMENTATION and is_train is False and to_data_aug % RATIO_DATA_AUG == 0:
@@ -98,7 +97,6 @@ def process_data_and_save_spectrogramm(row_data, is_train):
             save_spectrogramm([new_data[j] for j in range(int(current_duration * initial_freq),
                                                           max_duration_size)],
                               sample,
-                              duration,
                               extract_path)
             to_data_aug += 1
 
@@ -118,7 +116,6 @@ def process_data_and_save_spectrogramm(row_data, is_train):
             save_spectrogramm([data[i] for i in range(int(current_duration * initial_freq)
                                                       , int(end_audio * initial_freq))],
                               sample,
-                              (end_audio - current_duration),
                               extract_path + "_r.png")
             number_extract_created += 1
 

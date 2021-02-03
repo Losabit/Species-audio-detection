@@ -9,14 +9,13 @@ from dataset_param import *
 from PIL import Image
 
 
-def save_spectrogramm(d, s, duration, picture_path):
+def save_spectrogramm(d, s, picture_path):
     xx, frequency, bins, im = plt.specgram(d, Fs=s)
     plt.axis('off')
     plt.savefig(picture_path, bbox_inches='tight', pad_inches=0)
     plt.close()
     image = Image.open(picture_path)
-    img_width = int((duration / 10) * IMAGE_WIDTH)
-    image.convert('RGB').resize((img_width, IMAGE_HEIGHT)).save(picture_path)
+    image.convert('RGB').resize((IMAGE_WIDTH, IMAGE_HEIGHT)).save(picture_path)
 
 
 def load_data(path):
