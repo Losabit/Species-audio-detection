@@ -63,7 +63,7 @@ def process_data_and_save_spectrogramm(row_data, is_train):
         #  duration += random.randint(0, len())
 
         class_directory = determine_class_directory(t_min, t_max, current_duration, duration, row_species, is_train)
-        is_empty_extract = str(len_classes - 1) in class_directory
+        is_empty_extract = "24" in class_directory
 
         if is_empty_extract and number_extract_created % RATIO_EMPTY_CLASS == 0:
             create_empty_extract = True
@@ -102,7 +102,7 @@ def process_data_and_save_spectrogramm(row_data, is_train):
         it += 1
         number_extract_created += 1
 
-    if MINIMAL_DURATION < end_audio - current_duration:
+    if end_audio - current_duration >= MINIMAL_DURATION:
         duration = DURATION_CUT
         row_species = row_data["species_id"]
 
