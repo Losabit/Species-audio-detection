@@ -56,10 +56,6 @@ def train_model(m, x_iterator, y_iterator):
 
 
 if __name__ == '__main__':
-    if tf.test.gpu_device_name():
-        print('Default GPU Device:{}'.format(tf.test.gpu_device_name()))
-    else:
-        print("Please install GPU version of TF")
 
     print(F"Creating model...")
     model = create_efficient_net_models()

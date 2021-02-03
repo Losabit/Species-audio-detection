@@ -11,17 +11,18 @@ DATASET_TRAIN_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'train')
 DATASET_VAL_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'val')
 DATASET_TEST_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'test')
 WEIGHT_FILE_NAME = "EfficientNet_Weights/EfficientNetBN_tl_best_weights.h5"
-IMAGE_HEIGHT = 64
-IMAGE_WIDTH = 64
+IMAGE_HEIGHT = 284
+IMAGE_WIDTH = 512
+
 # Créer une 25eme classe qui ne correspond à aucun oiseau
-USE_EMPTY_CLASS = True
+USE_EMPTY_CLASS = False
 len_classes = 25 if USE_EMPTY_CLASS else 24
 epch = 100
 KERNEL_REGULARIZERS = 0.0005
 ref_lr = 0.03
 ref_batch_size = 1024
-dropout = 0.4
-batch_size = 6
+dropout = 0.2
+batch_size = 5
 momentumTest = 0.95
 destination_classes = [str(i) for i in range(len_classes)]
 ### PARAMS spectrogramm_conversion ###
@@ -32,7 +33,7 @@ DURATION_CUT = 10
 RANDOM_CUT = True
 # Un ratio de 5 permet de sauvegarder 1 enregistrement de la 25eme classe sur 5
 # Evite d'avoir une 25eme classe trop chargée en données (sachant que 1 enregistrement contient au minimum 2 extraits)
-RATIO_EMPTY_CLASS = 24
+RATIO_EMPTY_CLASS = 20
 PRED_EMPTY_IGNORE_EXTRACT = 0.6
 # minimum duration of record
 MINIMAL_DURATION = 0.5
