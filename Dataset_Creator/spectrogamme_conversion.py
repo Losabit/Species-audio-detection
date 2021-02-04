@@ -54,7 +54,7 @@ def process_data_and_save_spectrogramm(row_data, is_train):
     data, sample = sf.read(os.path.join(audio_inpath, recording_id + ".flac"))
     end_audio = len(data) - 1 / sample
 
-    print(F"processing {recording_id}, species : {row_species} [{t_min},{t_max}] duration({end_audio / initial_freq})")
+    # print(F"processing {recording_id}, species : {row_species} [{t_min},{t_max}] duration({end_audio / initial_freq})")
 
     while current_duration <= (end_audio / initial_freq):
 
@@ -76,9 +76,10 @@ def process_data_and_save_spectrogramm(row_data, is_train):
 
         if is_empty_extract and not create_empty_extract:
             current_duration += duration
+            number_extract_created += 1
             continue
 
-        print(F"Current duration : {current_duration} => Class_directory({class_directory}) )")
+        # print(F"Current duration : {current_duration} => Class_directory({class_directory}) )")
 
         extract_path = os.path.join(class_directory, recording_id)
 
@@ -104,7 +105,7 @@ def process_data_and_save_spectrogramm(row_data, is_train):
         it += 1
         number_extract_created += 1
 
-    print(F"{(end_audio / initial_freq) - current_duration} >= Minimal duration ?? )")
+    # print(F"{(end_audio / initial_freq) - current_duration} >= Minimal duration ?? )")
     if (end_audio / initial_freq) - current_duration >= MINIMAL_DURATION:
         duration = DURATION_CUT
         row_species = row_data["species_id"]

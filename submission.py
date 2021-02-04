@@ -30,7 +30,7 @@ def higher_than(predicts, limit):
                 higher_prediction[i] += 1
     total = sum(higher_prediction)
     if total == 0:
-        return higher_than(predicts, (limit - limit / 4,))
+        return higher_than(predicts, (limit - limit / 3,))
     return higher_prediction / total
 
 
@@ -70,9 +70,9 @@ def predict_and_save_in_submission(model: Model, func, *args):
 
                     model_prediction = model.predict(spectro_image)
 
-                    if USE_EMPTY_CLASS and model_prediction[0][len_classes - 1] >= PRED_EMPTY_IGNORE_EXTRACT:
-                        model_prediction[0] = np.zeros(len_classes, dtype=np.float32)
-                    elif USE_EMPTY_CLASS:
+                    # if USE_EMPTY_CLASS and model_prediction[0][len_classes - 1] >= PRED_EMPTY_IGNORE_EXTRACT:
+                    #    model_prediction[0] = np.zeros(len_classes, dtype=np.float32)
+                    if USE_EMPTY_CLASS:
                         model_prediction[0] = distribute_empty(model_prediction[0])
 
                     predictions = np.concatenate(

@@ -93,3 +93,4 @@ if __name__ == '__main__':
     validation_generator._set_index_array()
     model.evaluate(validation_generator,
                    steps=validation_generator.samples // batch_size)
+    predict_and_save_in_submission(model, higher_than, 0.35)
