@@ -6,6 +6,7 @@ import pandas as pd
 from audiomentations import Compose, AddGaussianNoise, AddGaussianSNR, FrequencyMask
 from dataset_param import *
 from utils import count_csv_lines, save_spectrogramm
+from sklearn.model_selection import train_test_split
 
 augmentations = [
     Compose([
@@ -52,11 +53,11 @@ def process_data_and_save_spectrogramm(row_data, is_train):
     row_species = row_data["species_id"]
 
     data, sample = sf.read(os.path.join(audio_inpath, recording_id + ".flac"))
-    end_audio = len(data) - 1 / sample
+    end_audio = (len(data) - 1) / sample
+
 
     # print(F"processing {recording_id}, species : {row_species} [{t_min},{t_max}] duration({end_audio / initial_freq})")
-
-    while current_duration <= (end_audio / initial_freq):
+    while current_duration <= end_audio:
 
         duration = DURATION_CUT
         create_empty_extract = False
@@ -105,8 +106,9 @@ def process_data_and_save_spectrogramm(row_data, is_train):
         it += 1
         number_extract_created += 1
 
-    # print(F"{(end_audio / initial_freq) - current_duration} >= Minimal duration ?? )")
-    if (end_audio / initial_freq) - current_duration >= MINIMAL_DURATION:
+
+    # print(F"{end_audio - current_duration} >= Minimal duration ?? )")
+    if end_audio - current_duration >= MINIMAL_DURATION:
         duration = DURATION_CUT
         row_species = row_data["species_id"]
 
@@ -125,20 +127,23 @@ def process_data_and_save_spectrogramm(row_data, is_train):
 
 
 def create_spectro_dataset():
-    train = pd.read_csv(metadata_inpath).sort_values("recording_id")
+    table_tp = pd.read_csv(metadata_inpath).sort_values("recording_id")
 
-    one_percent = int(len(train) / 100)
-    percent = 0
+    df_train, df_test, _, _ = train_test_split(table_tp,
+                                               table_tp["species_id"],
+                                               test_size=validation_split,
+                                               random_state=50,
+                                               stratify=table_tp["species_id"])
+    counter = 0
+    for index, row in df_train.iterrows():
+        print(F"{counter}/{len(df_train.index)}")
+        process_data_and_save_spectrogramm(row, is_train=True)
+        counter += 1
 
-    for index, row in train.iterrows():
-        if index % one_percent == 0:
-            if percent % PERCENT_PRINT == 0:
-                print(str(percent) + "%")
-            percent += 1
-
-        if (1 - validation_split) > index / len(train):
-            process_data_and_save_spectrogramm(row, is_train=True)
-        else:
-            process_data_and_save_spectrogramm(row, is_train=False)
+    counter = 0
+    for index, row in df_test.iterrows():
+        print(F"{counter}/{len(df_test.index)}")
+        process_data_and_save_spectrogramm(row, is_train=False)
+        counter += 1
 
     print('100%')
