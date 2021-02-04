@@ -67,4 +67,4 @@ if __name__ == "__main__":
     # Change dataset_type pour generer test_val ou test
     # 0 == train & val
     # 1 == test
-    clean_and_create_dataset(dataset_type[0])
+    clean_and_create_dataset(dataset_type[1])

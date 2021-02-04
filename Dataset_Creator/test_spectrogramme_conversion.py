@@ -15,7 +15,7 @@ def create_test_spectro_dataset():
     for file in os.listdir(test_path):
         file_path = (os.path.join(test_path, file))
         data, sample = sf.read(file_path)
-        end_audio = len(data) / sample
+        end_audio = (len(data) - 1) / sample
 
         directory_music = os.path.join(DATASET_TEST_DIRECTORY, file.replace(".flac", ""))
         if not os.path.isdir(directory_music):
@@ -33,18 +33,22 @@ def create_test_spectro_dataset():
 
         current_duration = 0
         it = 0
-        while current_duration <= (end_audio / initial_freq):
+        while current_duration <= end_audio:
+            max_duration_size = len(data) - 1 if len(data) <= (int((current_duration + duration) * initial_freq)) \
+                else (int((current_duration + duration) * initial_freq))
+
             save_spectrogramm([data[j] for j in range(int(current_duration * initial_freq),
-                                                      len(data) - 1 if len(data) <= (
-                                                          int((current_duration + duration) * initial_freq))
-                                                      else (int((current_duration + duration) * initial_freq)))],
+                                                      max_duration_size)],
                               sample, new_file_path + "_" + str(it) + ".png")
             current_duration += duration
             it += 1
 
-        if MINIMAL_DURATION < (end_audio / initial_freq) - current_duration:
+        if end_audio - current_duration >= MINIMAL_DURATION:
+            max_duration_size = len(data) - 1 if len(data) <= (int(end_audio * initial_freq)) \
+                else (int(end_audio * initial_freq))
+
             save_spectrogramm([data[i] for i in range(int(current_duration * initial_freq)
-                                                      , int(end_audio * initial_freq))],
+                                                      , max_duration_size)],
                               sample, new_file_path + "_r.png")
 
         line_count += 1
