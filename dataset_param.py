@@ -11,16 +11,16 @@ DATASET_TRAIN_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'train')
 DATASET_VAL_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'val')
 DATASET_TEST_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'test')
 WEIGHT_FILE_NAME = "EfficientNet_Weights/EfficientNetBN_tl_best_weights.h5"
-IMAGE_HEIGHT = 256
-IMAGE_WIDTH = 256
+IMAGE_HEIGHT = 500
+IMAGE_WIDTH = 500
 
 # Créer une 25eme classe qui ne correspond à aucun oiseau
 USE_EMPTY_CLASS = True
 len_classes = 25 if USE_EMPTY_CLASS else 24
-epch = 100
+epch = 600
 KERNEL_REGULARIZERS = 0.0005
 ref_lr = 0.03
-ref_batch_size = 1024
+ref_batch_size = 16
 dropout = 0.2
 batch_size = 2
 momentumTest = 0.95
@@ -29,15 +29,15 @@ destination_classes = [str(i) for i in range(len_classes)]
 # Lié à IMAGE_WIDTH et IMAGE_HEIGHT
 PERCENT_PRINT = 10
 # duration_cut -> Découpage des extraits en morceaux de x secondes / 0 = pas de découpage
-DURATION_CUT = 5
+DURATION_CUT = 2
 RANDOM_CUT = True
 # Un ratio de 5 permet de sauvegarder 1 enregistrement de la 25eme classe sur 5
 # Evite d'avoir une 25eme classe trop chargée en données (sachant que 1 enregistrement contient au minimum 2 extraits)
-RATIO_EMPTY_CLASS = 30
+RATIO_EMPTY_CLASS = 40
 PRED_EMPTY_IGNORE_EXTRACT = 0.6
 # minimum duration of record
-MINIMAL_DURATION = 0.5
-MINIMAL_ANIMAL_PRESENCE = 0.5
+MINIMAL_DURATION = 0.25
+MINIMAL_ANIMAL_PRESENCE = 0.25
 FREQ_MODIFIER = 0
 validation_split = 0.3
 USE_DATA_AUGMENTATION = False
