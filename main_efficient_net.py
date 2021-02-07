@@ -3,6 +3,7 @@ from tensorflow.keras import losses
 from tensorflow.keras import Sequential
 from tensorflow.keras import layers
 from tensorflow.keras import optimizers
+from tensorflow.keras.layers.experimental.preprocessing import RandomFlip
 import tensorflow.keras.backend as K
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 from efficientnet.tfkeras import EfficientNetB1 as EfficientNet
@@ -34,6 +35,8 @@ def create_efficient_net_models():
 
     m = Sequential([
         EfficientNet(include_top=False, weights='imagenet', input_tensor=inputs),
+        layers.GaussianNoise(stddev=0.2),
+        layers.experimental.preprocessing.RandomFlip("horizontal"),
         layers.GlobalAveragePooling2D(name="avg_pool"),
         layers.BatchNormalization(),
         layers.Dropout(dropout, name="top_dropout"),
