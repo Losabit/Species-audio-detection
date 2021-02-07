@@ -11,8 +11,8 @@ DATASET_TRAIN_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'train')
 DATASET_VAL_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'val')
 DATASET_TEST_DIRECTORY = os.path.join(DATASET_DIRECTORY, 'test')
 WEIGHT_FILE_NAME = "EfficientNet_Weights/EfficientNetBN_tl_best_weights.h5"
-IMAGE_HEIGHT = 256
-IMAGE_WIDTH = 256
+IMAGE_HEIGHT = 465
+IMAGE_WIDTH = 384
 
 # Créer une 25eme classe qui ne correspond à aucun oiseau
 USE_EMPTY_CLASS = True
@@ -73,6 +73,9 @@ def compute_class_weight():
     # Recuperation de la classe comportortant le moins de data
     key_min = min(class_weight.keys(), key=(lambda k: class_weight[k]))
     to_divide = class_weight[key_min]
+
+    if to_divide == 0:
+        return class_weight
 
     for c in destination_classes:
         class_weight[int(c)] /= to_divide
