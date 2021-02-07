@@ -39,7 +39,7 @@ def add_mlp_layers(model):
 
 
 def add_convnet(model):
-    model.add(tf.keras.layers.Reshape((IMAGE_WIDTH, IMAGE_HEIGHT, 4)))
+    model.add(tf.keras.layers.Reshape((IMAGE_WIDTH, IMAGE_HEIGHT)))
 
     model.add(tf.keras.layers.Conv2D(32, (3, 3), padding='same', activation=tf.keras.activations.tanh,
                                      kernel_regularizer=tf.keras.regularizers.l2(KERNEL_REGULARIZERS)))

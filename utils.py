@@ -1,5 +1,7 @@
 from datetime import datetime
 from dataset_param import *
+import librosa
+import librosa.display
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,6 +16,16 @@ def save_spectrogramm(d, s, picture_path):
     plt.axis('off')
     plt.savefig(picture_path, bbox_inches='tight', pad_inches=0)
     plt.close()
+    image = Image.open(picture_path)
+    image.convert('RGB').resize((IMAGE_WIDTH, IMAGE_HEIGHT)).save(picture_path)
+
+
+def save_mel_spectrogramm(d, s, picture_path):
+    spec = np.abs(librosa.stft(np.array(d), hop_length=512))
+    spec = librosa.amplitude_to_db(spec, ref=np.max)
+    librosa.display.specshow(spec, sr=s, cmap='magma')
+    plt.axis('off')
+    plt.savefig(picture_path, bbox_inches='tight', pad_inches=0)
     image = Image.open(picture_path)
     image.convert('RGB').resize((IMAGE_WIDTH, IMAGE_HEIGHT)).save(picture_path)
 
