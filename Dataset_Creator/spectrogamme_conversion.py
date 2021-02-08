@@ -101,10 +101,10 @@ def process_data_and_save_spectrogramm(row_data, is_train):
                                                               max_duration_size)],
                                   sample,
                                   extract_path)
-            # save_random_brig([new_data[j] for j in range(int(current_duration * initial_freq),
-            #                                              max_duration_size)],
-            #                  sample,
-            #                  extract_path_da)
+            save_random_brig([new_data[j] for j in range(int(current_duration * initial_freq),
+                                                         max_duration_size)],
+                             sample,
+                             extract_path_da)
 
             to_data_aug += 1
 
