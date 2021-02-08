@@ -35,12 +35,11 @@ def create_efficient_net_models():
 
     m = Sequential([
         EfficientNet(include_top=False, weights='imagenet', input_tensor=inputs),
-        layers.GaussianNoise(stddev=0.2),
         layers.experimental.preprocessing.RandomFlip("horizontal"),
         layers.GlobalAveragePooling2D(name="avg_pool"),
         layers.BatchNormalization(),
         layers.Dropout(dropout, name="top_dropout"),
-        layers.Dense(len_classes, activation="softmax", name="pred")
+        layers.Dense(len_classes, activation="tanh", name="pred")
     ])
     m.compile(loss=losses.CategoricalCrossentropy(),
               optimizer=optimizers.Adam(lr=0.0001),

@@ -5,7 +5,7 @@ import soundfile as sf
 import pandas as pd
 from audiomentations import Compose, AddGaussianNoise, AddGaussianSNR, FrequencyMask
 from dataset_param import *
-from utils import count_csv_lines, save_spectrogramm, save_mel_spectrogramm
+from utils import count_csv_lines, save_spectrogramm, save_mel_spectrogramm, save_random_brig
 from sklearn.model_selection import train_test_split
 
 augmentations = [
@@ -55,7 +55,6 @@ def process_data_and_save_spectrogramm(row_data, is_train):
     data, sample = sf.read(os.path.join(audio_inpath, recording_id + ".flac"))
     end_audio = (len(data) - 1) / sample
 
-
     # print(F"processing {recording_id}, species : {row_species} [{t_min},{t_max}] duration({end_audio / initial_freq})")
     while current_duration <= end_audio:
 
@@ -83,29 +82,35 @@ def process_data_and_save_spectrogramm(row_data, is_train):
         # print(F"Current duration : {current_duration} => Class_directory({class_directory}) )")
 
         extract_path = os.path.join(class_directory, recording_id)
+        extract_path_da = os.path.join(class_directory, recording_id)
 
         max_duration_size = len(data) - 1 if len(data) <= (int((current_duration + duration) * initial_freq)) \
             else (int((current_duration + duration) * initial_freq))
 
         save_mel_spectrogramm([data[j] for j in range(int(current_duration * initial_freq),
-                                                  max_duration_size)],
-                          sample,
-                          extract_path + "_" + str(it) + ".png")
+                                                      max_duration_size)],
+                              sample,
+                              extract_path + "_" + str(it) + ".png")
 
         if USE_DATA_AUGMENTATION and is_train is False and to_data_aug % RATIO_DATA_AUG == 0:
             new_data = augmentations[to_data_aug % 2](samples=data, sample_rate=sample)
             extract_path += F"_{str(it)}__{to_data_aug}.png"
+            extract_path_da += F"_{str(it)}__{to_data_aug}_.png"
 
             save_mel_spectrogramm([new_data[j] for j in range(int(current_duration * initial_freq),
-                                                          max_duration_size)],
-                              sample,
-                              extract_path)
+                                                              max_duration_size)],
+                                  sample,
+                                  extract_path)
+            # save_random_brig([new_data[j] for j in range(int(current_duration * initial_freq),
+            #                                              max_duration_size)],
+            #                  sample,
+            #                  extract_path_da)
+
             to_data_aug += 1
 
         current_duration += duration
         it += 1
         number_extract_created += 1
-
 
     # print(F"{end_audio - current_duration} >= Minimal duration ?? )")
     if end_audio - current_duration >= MINIMAL_DURATION:
@@ -120,9 +125,9 @@ def process_data_and_save_spectrogramm(row_data, is_train):
                 else (int(end_audio * initial_freq))
 
             save_mel_spectrogramm([data[i] for i in range(int(current_duration * initial_freq)
-                                                      , max_duration_size)],
-                              sample,
-                              extract_path + "_r.png")
+                                                          , max_duration_size)],
+                                  sample,
+                                  extract_path + "_r.png")
             number_extract_created += 1
 
 
