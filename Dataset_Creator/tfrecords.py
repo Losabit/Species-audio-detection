@@ -1,13 +1,12 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from dataset_param import *
-from main import create_base_model, add_convnet
+from main import create_base_model, add_convnet, add_mlp_layers
 
 SR = 48000
 TRAIN_TFREC = os.path.join(PROJECT_PATH, 'dataset', 'rfcx-species-audio-detection', 'tfrecords', 'train')
 TEST_TFREC = os.path.join(PROJECT_PATH, 'dataset', 'rfcx-species-audio-detection', 'tfrecords', 'test')
-raw_dataset = tf.data.TFRecordDataset([os.path.join(TRAIN_TFREC, '00-148.tfrec')])
-tf.compat.v1.enable_eager_execution()
+# tf.compat.v1.enable_eager_execution()
 
 feature_description = {
     'recording_id': tf.io.FixedLenFeature([], tf.string, default_value=''),
@@ -28,7 +27,7 @@ parse_dtype = {
     't_min': tf.float32,
     'f_min': tf.float32,
     't_max': tf.float32,
-    'f_max':tf.float32,
+    'f_max': tf.float32,
     'is_tp': tf.int32
 }
 
@@ -99,7 +98,7 @@ def wav_to_spec(x):
 
     # Warp the linear scale spectrograms into the mel-scale.
     num_spectrogram_bins = stfts.shape[-1]
-    lower_edge_hertz, upper_edge_hertz, num_mel_bins = 40.0, 24000.0, 384
+    lower_edge_hertz, upper_edge_hertz, num_mel_bins = 40.0, 24000.0, IMAGE_WIDTH
 
     linear_to_mel_weight_matrix = tf.signal.linear_to_mel_weight_matrix(
         num_mel_bins, num_spectrogram_bins, SR, lower_edge_hertz,
@@ -115,32 +114,36 @@ def wav_to_spec(x):
     return x
 
 
-def get_data_and_labels(sample, have_label):
-    if have_label:
-        return sample["audio_wav"], sample["species_id"]
-    else:
-        return sample["audio_wav"]
+def create_annot_test(sample):
+    return sample["audio_wav"]
+
+
+@tf.function
+def create_annot(x):
+    targ = tf.one_hot(x["species_id"], len_classes, on_value=x["is_tp"], off_value=0)
+    return (x['audio_wav'], tf.cast(targ, tf.float32))
+    '''
+    return {
+        'input': x["audio_wav"],
+        'target': tf.cast(targ, tf.float32)
+    }
+    '''
 
 
 def load_dataset(files, have_label=True):
     autotune = tf.data.experimental.AUTOTUNE
     if have_label:
-        return apply_transformation(tf.data.TFRecordDataset(files, num_parallel_reads=autotune)\
-            .map(parse_function, num_parallel_calls=autotune).unbatch(),
-                                    have_label)# .shuffle(2048)
+        return tf.data.TFRecordDataset(files, num_parallel_reads=autotune)\
+            .map(parse_function, num_parallel_calls=autotune).unbatch() \
+            .filter(filter_tp)\
+            .map(wav_to_spec, num_parallel_calls=autotune)\
+            .map(create_annot, num_parallel_calls=autotune)
+            # .shuffle(2048)
     else:
-        return apply_test_transformation(tf.data.TFRecordDataset(files, num_parallel_reads=autotune)\
-            .map(test_parse_function, num_parallel_calls=autotune), have_label)# .shuffle(2048)
-
-
-def apply_transformation(dataset, have_label):
-    return dataset.filter(filter_tp).map(wav_to_spec)\
-        .map(lambda x: get_data_and_labels(x, have_label))
-
-
-def apply_test_transformation(dataset, have_label):
-    return dataset.map(wav_to_spec)\
-        .map(lambda x: get_data_and_labels(x, have_label))
+        return tf.data.TFRecordDataset(files, num_parallel_reads=autotune)\
+            .map(test_parse_function, num_parallel_calls=autotune)\
+            .map(wav_to_spec, num_parallel_calls=autotune)\
+            .map(create_annot_test, num_parallel_calls=autotune)# .shuffle(2048)
 
 
 if __name__ == '__main__':
@@ -162,17 +165,18 @@ if __name__ == '__main__':
         plt.axis("off")
         plt.show()
 
+    '''
     image_batch, label_batch = next(iter(train_dataset))
     test_image_batch = next(iter(test_dataset))
 
     show_batch(image_batch.numpy(), label_batch.numpy())
     show_batch(test_image_batch.numpy(), label_batch.numpy())
-
+    '''
     config = tf.compat.v1.ConfigProto()
     config.gpu_options.allow_growth = True
     sess = tf.compat.v1.Session(config=config)
 
-    model = create_base_model(add_convnet)
+    model = create_base_model(add_mlp_layers)
     log = model.fit(
         train_dataset,
         validation_data=val_dataset,
