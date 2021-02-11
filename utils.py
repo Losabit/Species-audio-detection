@@ -30,6 +30,18 @@ def save_mel_spectrogramm(d, s, picture_path):
     image.convert('RGB').resize((IMAGE_WIDTH, IMAGE_HEIGHT)).save(picture_path)
 
 
+def save_random_brig(d, s, picture_patch):
+    spec = np.abs(librosa.stft(np.array(d), hop_length=512))
+    spec = librosa.amplitude_to_db(spec, ref=np.max)
+    librosa.display.specshow(spec, sr=s, cmap='magma')
+    plt.axis('off')
+    plt.savefig(picture_patch, bbox_inches='tight', pad_inches=0)
+    img = Image.open(picture_patch)
+    imgArray = np.asarray(img)
+    img2 = tf.image.random_brightness(imgArray,0.2)
+    finalImag = tf.keras.preprocessing.image.array_to_img(img2)
+    finalImag.save(picture_patch)
+
 def load_data(path):
     labels = np.zeros(0, dtype=np.float32)
     data = np.zeros((0, IMAGE_HEIGHT, IMAGE_WIDTH, 4), dtype=np.float32)
