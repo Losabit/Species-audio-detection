@@ -6,3 +6,4 @@ __pycache__/
 EfficientNet_Weights/*
 EfficientNet_Weights/
 dataset_param.py
+Jupyter/.ipynb_checkpoints/*
