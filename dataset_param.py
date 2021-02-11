@@ -73,6 +73,8 @@ def compute_class_weight():
     # Recuperation de la classe comportortant le moins de data
     key_min = min(class_weight.keys(), key=(lambda k: class_weight[k]))
     to_divide = class_weight[key_min]
+    if to_divide == 0:
+        return class_weight
 
     for c in destination_classes:
         class_weight[int(c)] /= to_divide

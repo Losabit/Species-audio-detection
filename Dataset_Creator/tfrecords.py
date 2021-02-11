@@ -121,7 +121,7 @@ def create_annot_test(sample):
 @tf.function
 def create_annot(x):
     targ = tf.one_hot(x["species_id"], len_classes, on_value=x["is_tp"], off_value=0)
-    return (x['audio_wav'], tf.cast(targ, tf.float32))
+    return x['audio_wav'], tf.cast(targ, tf.float32)
     '''
     return {
         'input': x["audio_wav"],
@@ -147,7 +147,6 @@ def load_dataset(files, have_label=True):
 
 
 if __name__ == '__main__':
-
     tfrecs = sorted(tf.io.gfile.glob(TRAIN_TFREC + '/*.tfrec'))
     split_ind = int((1 - validation_split) * len(tfrecs))
     train_tfrec, val_tfrec = tfrecs[:split_ind], tfrecs[split_ind:]
